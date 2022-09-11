@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "dmsdk",
+    "dmsdk_ffi",
+    "extension",
+]

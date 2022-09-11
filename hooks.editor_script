@@ -1,0 +1,15 @@
+local M = {}
+
+function M.on_build_started(opts)
+    return {
+        {
+            action = "shell",
+            command = {
+                "./rustc.sh",
+                opts.platform
+            }
+        }
+    }
+end
+
+return M
