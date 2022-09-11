@@ -2,6 +2,7 @@ pub mod dmconfigfile;
 pub mod dmengine;
 pub mod dmextension;
 pub mod dmgameobject;
+pub mod dmjson;
 pub mod dmlog;
 pub mod dmresource;
 pub mod dmscript;

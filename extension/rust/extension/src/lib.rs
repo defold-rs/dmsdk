@@ -3,7 +3,7 @@
 #[macro_use]
 extern crate dmsdk;
 
-use dmsdk::{dmconfigfile, dmengine, dmextension, dmlog, dmscript, dmtime, lua};
+use dmsdk::{dmconfigfile, dmengine, dmextension, dmjson, dmlog, dmscript, dmtime, lua};
 
 // LUA FUNCTIONS //
 #[no_mangle]
@@ -80,6 +80,16 @@ pub unsafe extern "C" fn lua_init(l: lua::State) {
 pub unsafe extern "C" fn ext_init(params: dmextension::Params) -> i32 {
     lua_init((*params).m_L);
     dmlog::info("RUST", "Registered Rust Extension");
+
+    let json = "{\"foo\": \"bar\", \"cool_number\": 1234}";
+    match dmjson::parse(json) {
+        dmjson::Result::Ok(document) => {
+            dmlog::info("RUST", &format!("dmjson::parse() -> {:#?}", document))
+        }
+        dmjson::Result::Err(err) => {
+            println!("Error parsing JSON: {:?}", err)
+        }
+    }
 
     dmextension::RESULT_OK
 }
