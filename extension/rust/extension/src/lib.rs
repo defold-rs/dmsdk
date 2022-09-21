@@ -1,9 +1,11 @@
 #![allow(clippy::missing_safety_doc, clippy::not_unsafe_ptr_arg_deref)]
 
-#[macro_use]
-extern crate dmsdk;
+use std::{
+    ffi::{c_void, CStr},
+    ptr,
+};
 
-use dmsdk::{dmconfigfile, dmengine, dmextension, dmjson, dmlog, dmscript, dmtime, lua};
+use dmsdk::*;
 
 // LUA FUNCTIONS //
 #[no_mangle]
@@ -99,11 +101,58 @@ pub unsafe extern "C" fn ext_final(_params: dmextension::Params) -> i32 {
     dmextension::RESULT_OK
 }
 
-/*#[no_mangle]
-unsafe extern "C" fn something_register(ctx: *mut dmresource::ResourceTypeRegisterContext) -> i32 {
-    ctx.m_Contexts._base.
-    0
-}*/
-
 declare_extension!(RUST, ext_init, ext_final, Some(app_init), None, None, None);
-//register_resource_type!(RUSTC, "rustc", something_register, None);
+
+// RESOURCE TYPE CREATION //
+pub struct Something {
+    field: [u8; 4],
+}
+
+static mut SOMETHING_RESOURCE: Something = Something { field: [0; 4] };
+
+#[no_mangle]
+unsafe extern "C" fn something_create(params: *const dmresource::ResourceCreateParams) -> i32 {
+    let mut resource = *(*params).m_Resource;
+    resource.m_Resource = &mut SOMETHING_RESOURCE as *mut _ as *mut c_void;
+    resource.m_ResourceSize = 4;
+
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn something_destroy(params: *const dmresource::ResourceDestroyParams) -> i32 {
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn something_recreate(params: *const dmresource::ResourceRecreateParams) -> i32 {
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn something_register(
+    params: *mut dmresource::ResourceTypeRegisterContext,
+) -> i32 {
+    dmresource::register_type(
+        (*params).m_Factory,
+        (*params).m_Name,
+        ptr::null_mut(),
+        None,
+        Some(something_create),
+        None,
+        Some(something_destroy),
+        Some(something_recreate),
+    );
+
+    dmlog::info(
+        "RUST",
+        &format!(
+            "Registered type {:?}",
+            CStr::from_ptr((*params).m_Name).to_str().unwrap()
+        ),
+    );
+
+    0
+}
+
+register_resource_type!(RUSTC, "smthc", something_register, None);

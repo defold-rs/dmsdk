@@ -29,7 +29,7 @@ pub const RESULT_INIT_ERROR: i32 = -1;
 ///
 /// #[no_mangle]
 /// pub unsafe extern "C" fn ext_init(params: Params) -> i32 {
-///     dmlog::info("Registered MY_EXTENSION Extension");
+///     dmlog::info("MY_EXTENSION", "Registered extension MY_EXTENSION");
 ///     
 ///     dmextension::RESULT_OK
 /// }
