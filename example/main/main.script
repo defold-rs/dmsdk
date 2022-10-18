@@ -1,0 +1,10 @@
+function init(self)
+	print(hash("__unnamed__"))
+	print(rust.lua_function())
+	print(rust.reverse("Reversed by Rust"))
+	print(rust.b64_encode("Base64 encoded by Rust"))
+	--rust.play_sound(sys.load_resource("/main/sc1.ogg"))
+	print(rust.get_position())
+	print(go.get_position())
+	print(go.get_rotation())
+end
