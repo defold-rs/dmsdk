@@ -1,14 +1,2 @@
-/.internal
-/build
-.externalToolBuilders
-.DS_Store
-Thumbs.db
-.lock-wscript
-*.pyc
-.project
-.cproject
-builtins
-
-/extension/rust/Cargo.lock
-/extension/rust/target
-/extension/lib/
+/target
+/Cargo.lock
