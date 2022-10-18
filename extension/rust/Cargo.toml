@@ -2,5 +2,4 @@
 members = [
     "dmsdk",
     "dmsdk_ffi",
-    "extension",
 ]
