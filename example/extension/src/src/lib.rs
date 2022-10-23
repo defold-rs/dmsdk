@@ -1,10 +1,5 @@
 #![allow(clippy::missing_safety_doc, clippy::not_unsafe_ptr_arg_deref)]
 
-use std::{
-    ffi::{c_void, CStr},
-    ptr,
-};
-
 use dmsdk::*;
 
 extern "C" {
@@ -158,58 +153,3 @@ pub extern "C" fn ext_final(_params: dmextension::Params) -> i32 {
 }
 
 declare_extension!(RUST, ext_init, ext_final, Some(app_init), None, None, None);
-
-// RESOURCE TYPE CREATION //
-pub struct Something {
-    field: [u8; 4],
-}
-
-static mut SOMETHING_RESOURCE: Something = Something { field: [0; 4] };
-
-#[no_mangle]
-unsafe extern "C" fn something_create(params: *const dmresource::ResourceCreateParams) -> i32 {
-    let mut resource = *(*params).m_Resource;
-    resource.m_Resource = &mut SOMETHING_RESOURCE as *mut _ as *mut c_void;
-    resource.m_ResourceSize = 4;
-    println!("{:?}", SOMETHING_RESOURCE.field);
-
-    0
-}
-
-#[no_mangle]
-unsafe extern "C" fn something_destroy(_params: *const dmresource::ResourceDestroyParams) -> i32 {
-    0
-}
-
-#[no_mangle]
-unsafe extern "C" fn something_recreate(_params: *const dmresource::ResourceRecreateParams) -> i32 {
-    0
-}
-
-#[no_mangle]
-unsafe extern "C" fn something_register(
-    params: *mut dmresource::ResourceTypeRegisterContext,
-) -> i32 {
-    dmresource::register_type(
-        (*params).m_Factory,
-        (*params).m_Name,
-        ptr::null_mut(),
-        None,
-        Some(something_create),
-        None,
-        Some(something_destroy),
-        Some(something_recreate),
-    );
-
-    dmlog::info(
-        "RUST",
-        &format!(
-            "Registered type {:?}",
-            CStr::from_ptr((*params).m_Name).to_str().unwrap()
-        ),
-    );
-
-    0
-}
-
-register_resource_type!(RUSTC, "smthc", something_register, None);
