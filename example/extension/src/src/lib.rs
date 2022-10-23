@@ -41,7 +41,7 @@ pub extern "C" fn reverse(l: lua::State) -> i32 {
 pub extern "C" fn b64_encode(l: lua::State) -> i32 {
     unsafe {
         let plaintext = lua::check_string(l, 1);
-        lua::push_string(l, &base64::encode(plaintext));
+        lua::push_string(l, &plaintext);
     };
 
     1
@@ -153,7 +153,7 @@ pub unsafe extern "C" fn ext_init(params: dmextension::Params) -> i32 {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn ext_final(_params: dmextension::Params) -> i32 {
+pub extern "C" fn ext_final(_params: dmextension::Params) -> i32 {
     dmextension::RESULT_OK
 }
 
