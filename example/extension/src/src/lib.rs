@@ -2,10 +2,6 @@
 
 use dmsdk::*;
 
-extern "C" {
-    //fn pos(instance: dmsdk::ffi::dmGameObject::HInstance) -> dmsdk::ffi::dmVMath::Point3;
-}
-
 // LUA FUNCTIONS //
 #[no_mangle]
 pub extern "C" fn lua_function(l: lua::State) -> i32 {
@@ -13,8 +9,6 @@ pub extern "C" fn lua_function(l: lua::State) -> i32 {
 
     unsafe {
         lua::push_integer(l, 123);
-        let go = *dmscript::check_go_instance(l);
-        println!("{:#?}", go);
     }
 
     1
@@ -42,62 +36,10 @@ pub extern "C" fn b64_encode(l: lua::State) -> i32 {
     1
 }
 
-#[no_mangle]
-pub extern "C" fn get_position(l: lua::State) -> i32 {
-    let instance = unsafe { dmscript::check_go_instance(l) };
-
-    //unsafe {
-    /*dmgameobject::set_position(
-        instance,
-        dmvmath::Point3 {
-            x: 1.0,
-            y: 2.0,
-            z: 3.0,
-        },
-    );*/
-    //}
-    unsafe {
-        println!("{:?}", dmgameobject::get_identifier(instance));
-        //println!("{:?}", pos(instance));
-    }
-
-    //let position = unsafe { dmgameobject::get_position(instance) };
-    //let rotation = unsafe { dmgameobject::get_rotation(instance) };
-    /*let id = dmgameobject::get_identifier(&instance);
-    let scale = dmgameobject::get_scale(&instance);
-    println!("{:?} {:?} {:?}", position, rotation, scale);*/
-
-    unsafe {
-        dmscript::push_vector3(
-            l,
-            dmvmath::Vector3 {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
-        );
-    }
-
-    1
-}
-
-// #[no_mangle]
-// pub extern "C" fn play_sound(l: lua::State) -> i32 {
-//     let bytes = unsafe { lua::check_bytes(l, 1) };
-//     let mut manager = AudioManager::<CpalBackend>::new(AudioManagerSettings::default()).unwrap();
-//     let sound_data =
-//         StaticSoundData::from_cursor(Cursor::new(bytes), StaticSoundSettings::default()).unwrap();
-
-//     manager.play(sound_data).unwrap();
-
-//     0
-// }
-
 const LUA_FUNCTIONS: lua::Reg = &[
     ("reverse", reverse),
     ("lua_function", lua_function),
     ("b64_encode", b64_encode),
-    ("get_position", get_position), //    ("play_sound", play_sound),
 ];
 
 // LIFECYCLE FUNCTIONS //
