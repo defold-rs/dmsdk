@@ -51,16 +51,16 @@ pub extern "C" fn b64_encode(l: lua::State) -> i32 {
 pub extern "C" fn get_position(l: lua::State) -> i32 {
     let instance = unsafe { dmscript::check_go_instance(l) };
 
-    unsafe {
-        /*dmgameobject::set_position(
-            instance,
-            dmvmath::Point3 {
-                x: 1.0,
-                y: 2.0,
-                z: 3.0,
-            },
-        );*/
-    }
+    //unsafe {
+    /*dmgameobject::set_position(
+        instance,
+        dmvmath::Point3 {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        },
+    );*/
+    //}
     unsafe {
         println!("{:?}", dmgameobject::get_identifier(instance));
         //println!("{:?}", pos(instance));
@@ -171,6 +171,7 @@ unsafe extern "C" fn something_create(params: *const dmresource::ResourceCreateP
     let mut resource = *(*params).m_Resource;
     resource.m_Resource = &mut SOMETHING_RESOURCE as *mut _ as *mut c_void;
     resource.m_ResourceSize = 4;
+    println!("{:?}", SOMETHING_RESOURCE.field);
 
     0
 }
