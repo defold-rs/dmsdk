@@ -30,7 +30,7 @@ pub extern "C" fn reverse(l: lua::State) -> i32 {
 pub extern "C" fn b64_encode(l: lua::State) -> i32 {
     unsafe {
         let plaintext = lua::check_string(l, 1);
-        lua::push_string(l, &plaintext);
+        lua::push_string(l, &base64::encode(plaintext));
     };
 
     1

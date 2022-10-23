@@ -1,5 +1,5 @@
 [package]
-name = "extension"
+name = "example_extension"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 dmsdk = { git = "https://github.com/JustAPotota/defold-rs" }
-#base64 = "0.13.0"
+base64 = "0.13.0"
 
-[workspace]
+[workspace] # This is just here so it doesn't conflict with the `dmsdk` workspace
