@@ -49,13 +49,13 @@ pub const RESULT_INIT_ERROR: i32 = -1;
 /// #[no_mangle]
 /// pub unsafe extern "C" fn on_event(params: Params, event: Event) { }
 ///
-/// declare_extension!(MY_EXTENSION, ext_init, ext_final, Some(app_init), Some(app_final), Some(update), Some(on_event));
+/// declare_extension!(MY_EXTENSION, Some(app_init), Some(app_final), Some(ext_init), Some(ext_final), Some(update), Some(on_event));
 ///
 /// # fn main() {}
 /// ```
 #[macro_export]
 macro_rules! declare_extension {
-    ($symbol:ident, $ext_init:expr, $ext_final:expr, $app_init:expr, $app_final:expr, $update:expr, $on_event:expr) => {
+    ($symbol:ident, $app_init:expr, $app_final:expr, $ext_init:expr, $ext_final:expr, $on_update:expr, $on_event:expr) => {
         paste! {
             static mut [<$symbol _DESC>]: dmextension::Desc = dmextension::Desc {
                 _bindgen_opaque_blob: [0u64; 11],
@@ -63,7 +63,7 @@ macro_rules! declare_extension {
 
             #[no_mangle]
             #[dmextension::ctor]
-            unsafe fn $symbol() {
+            fn $symbol() {
                 dmextension::_register(
                     stringify!($symbol),
                     &mut [<$symbol _DESC>],
@@ -85,8 +85,8 @@ pub fn _register(
     desc: &mut Desc,
     app_init: Option<AppCallback>,
     app_final: Option<AppCallback>,
-    ext_init: Callback,
-    ext_final: Callback,
+    ext_init: Option<Callback>,
+    ext_final: Option<Callback>,
     update: Option<Callback>,
     on_event: Option<EventCallback>,
 ) {
@@ -99,8 +99,8 @@ pub fn _register(
             name.as_ptr(),
             app_init,
             app_final,
-            Some(ext_init),
-            Some(ext_final),
+            ext_init,
+            ext_final,
             update,
             on_event,
         );

@@ -94,4 +94,4 @@ pub extern "C" fn ext_final(_params: dmextension::Params) -> i32 {
     dmextension::RESULT_OK
 }
 
-declare_extension!(RUST, ext_init, ext_final, Some(app_init), None, None, None);
+declare_extension!(RUST, Some(app_init), None, Some(ext_init), Some(ext_final), None, None);
