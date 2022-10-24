@@ -71,7 +71,7 @@ macro_rules! declare_extension {
                     $app_final,
                     $ext_init,
                     $ext_final,
-                    $update,
+                    $on_update,
                     $on_event,
                 );
             }
