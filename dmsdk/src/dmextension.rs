@@ -63,7 +63,7 @@ macro_rules! declare_extension {
 
             #[no_mangle]
             #[dmextension::ctor]
-            fn $symbol() {
+            unsafe fn $symbol() {
                 dmextension::_register(
                     stringify!($symbol),
                     &mut [<$symbol _DESC>],
