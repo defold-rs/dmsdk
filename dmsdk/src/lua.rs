@@ -1,9 +1,27 @@
-use dmsdk_ffi;
-use std::ffi::{CStr, CString};
+use std::{
+    ffi::{CStr, CString},
+    mem::size_of,
+};
 
 pub type State = *mut dmsdk_ffi::lua_State;
 pub type Function = extern "C" fn(l: State) -> i32;
 pub type Reg = &'static [(&'static str, Function)];
+
+/// # Safety
+///
+/// This function is safe as long as `l` points to a valid Lua state.
+pub unsafe fn push_userdata<T>(l: State, userdata: T) {
+    let ptr = dmsdk_ffi::lua_newuserdata(l, size_of::<T>() as u64) as *mut T;
+    ptr.write(userdata);
+}
+
+/// # Safety
+///
+/// This function is safe as long as `l` points to a valid Lua state and there is a valid instance of `T` at index `i` of the stack.
+pub unsafe fn to_userdata<T>(l: State, i: i32) -> T {
+    let ptr = dmsdk_ffi::lua_touserdata(l, i) as *mut T;
+    ptr.read()
+}
 
 /// # Safety
 ///

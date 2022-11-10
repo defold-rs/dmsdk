@@ -27,6 +27,24 @@ pub extern "C" fn reverse(l: lua::State) -> i32 {
 }
 
 #[no_mangle]
+extern "C" fn create_userdata(l: lua::State) -> i32 {
+    let userdata = vec![1, 2, 3];
+    unsafe {
+        lua::push_userdata(l, userdata);
+    }
+
+    1
+}
+
+#[no_mangle]
+extern "C" fn read_userdata(l: lua::State) -> i32 {
+    let userdata: Vec<i32> = unsafe { lua::to_userdata(l, 1) };
+    println!("{:?}", userdata);
+
+    0
+}
+
+#[no_mangle]
 pub extern "C" fn b64_encode(l: lua::State) -> i32 {
     unsafe {
         let plaintext = lua::check_string(l, 1);
@@ -94,4 +112,12 @@ pub extern "C" fn ext_final(_params: dmextension::Params) -> i32 {
     dmextension::RESULT_OK
 }
 
-declare_extension!(RUST, Some(app_init), None, Some(ext_init), Some(ext_final), None, None);
+declare_extension!(
+    RUST,
+    Some(app_init),
+    None,
+    Some(ext_init),
+    Some(ext_final),
+    None,
+    None
+);
