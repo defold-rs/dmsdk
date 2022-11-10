@@ -39,7 +39,7 @@ extern "C" fn create_userdata(l: lua::State) -> i32 {
 #[no_mangle]
 extern "C" fn read_userdata(l: lua::State) -> i32 {
     let userdata: Vec<i32> = unsafe { lua::to_userdata(l, 1) };
-    println!("{:?}", userdata);
+    dmlog::info("RUST", &format!("Userdata: {:?}", userdata));
 
     0
 }
@@ -58,6 +58,8 @@ const LUA_FUNCTIONS: lua::Reg = &[
     ("reverse", reverse),
     ("lua_function", lua_function),
     ("b64_encode", b64_encode),
+    ("create_userdata", create_userdata),
+    ("read_userdata", read_userdata),
 ];
 
 // LIFECYCLE FUNCTIONS //

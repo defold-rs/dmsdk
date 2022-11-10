@@ -2,4 +2,7 @@ function init(self)
 	print(rust.lua_function())
 	print(rust.reverse("Reversed by Rust"))
 	print(rust.b64_encode("Base64 encoded by Rust"))
+
+	local userdata = rust.create_userdata()
+	rust.read_userdata(userdata)
 end
