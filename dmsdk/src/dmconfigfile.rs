@@ -5,6 +5,8 @@ use std::ffi::{CStr, CString};
 
 pub type ConfigFile = dmConfigFile::HConfig;
 
+pub struct Config {}
+
 /// Gets the corresponding config value as a String.
 ///
 /// `default_value` will be returned if the key isn't found.

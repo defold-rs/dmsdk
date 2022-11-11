@@ -63,25 +63,25 @@ const LUA_FUNCTIONS: lua::Reg = &[
 ];
 
 // LIFECYCLE FUNCTIONS //
-#[no_mangle]
-pub unsafe extern "C" fn app_init(params: dmextension::AppParams) -> i32 {
-    let config = dmengine::get_config_file(params);
+fn app_init(params: dmextension::AppParams) -> dmextension::Result {
+    unsafe {
+        let config = dmengine::get_config_file(params);
 
-    let title = dmconfigfile::get_string(config, "project.title", "Untitled");
-    let display_width = dmconfigfile::get_int(config, "display.width", 640);
-    let gravity = dmconfigfile::get_float(config, "physics.gravity_y", -9.8);
+        let title = dmconfigfile::get_string(config, "project.title", "Untitled");
+        let display_width = dmconfigfile::get_int(config, "display.width", 640);
+        let gravity = dmconfigfile::get_float(config, "physics.gravity_y", -9.8);
 
-    dmlog::info("RUST", &format!("Display width is: {display_width}"));
-    dmlog::info("RUST", &format!("Project title is: {title}"));
-    dmlog::info("RUST", &format!("Gravity is: {gravity}"));
+        dmlog::info("RUST", &format!("Display width is: {display_width}"));
+        dmlog::info("RUST", &format!("Project title is: {title}"));
+        dmlog::info("RUST", &format!("Gravity is: {gravity}"));
+    }
 
     dmlog::info("RUST", &format!("Current time is: {}", dmtime::get_time()));
 
-    dmextension::RESULT_OK
+    dmextension::Result::Ok
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn lua_init(l: lua::State) {
+unsafe fn lua_init(l: lua::State) {
     let top = lua::get_top(l);
 
     lua::register(l, "rust", LUA_FUNCTIONS);
@@ -91,9 +91,11 @@ pub unsafe extern "C" fn lua_init(l: lua::State) {
     assert_eq!(top, lua::get_top(l));
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn ext_init(params: dmextension::Params) -> i32 {
-    lua_init((*params).m_L);
+fn ext_init(params: dmextension::Params) -> dmextension::Result {
+    unsafe {
+        lua_init(params.l);
+    }
+
     dmlog::info("RUST", "Registered Rust Extension");
 
     let json = "{\"foo\": \"bar\", \"cool_number\": 1234}";
@@ -106,12 +108,11 @@ pub unsafe extern "C" fn ext_init(params: dmextension::Params) -> i32 {
         }
     }
 
-    dmextension::RESULT_OK
+    dmextension::Result::Ok
 }
 
-#[no_mangle]
-pub extern "C" fn ext_final(_params: dmextension::Params) -> i32 {
-    dmextension::RESULT_OK
+fn ext_final(_params: dmextension::Params) -> dmextension::Result {
+    dmextension::Result::Ok
 }
 
 declare_extension!(

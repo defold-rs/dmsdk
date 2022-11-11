@@ -1,20 +1,131 @@
 //! Functions for creating and controlling engine native extension libraries.
 
+use crate::*;
 use dmsdk_ffi::dmExtension;
 use std::ffi::CString;
 
 pub use ctor::ctor;
 
-pub type AppParams = *mut dmExtension::AppParams;
-pub type Params = *mut dmExtension::Params;
-pub type Event = *const dmExtension::Event;
-pub type AppCallback = unsafe extern "C" fn(params: AppParams) -> i32;
-pub type Callback = unsafe extern "C" fn(params: Params) -> i32;
-pub type EventCallback = unsafe extern "C" fn(params: Params, event: Event);
+pub type RawParams = *mut dmExtension::Params;
+pub type RawEvent = *const dmExtension::Event;
+pub type RawAppParams = *mut dmExtension::AppParams;
+type RawAppCallback = unsafe extern "C" fn(RawAppParams) -> i32;
+type RawCallback = unsafe extern "C" fn(RawParams) -> i32;
+type RawEventCallback = unsafe extern "C" fn(RawParams, RawEvent);
 pub type Desc = dmExtension::Desc;
+pub type AppCallback = fn(AppParams) -> Result;
+pub type Callback = fn(Params) -> Result;
+pub type EventCallback = fn(Params, Event);
 
-pub const RESULT_OK: i32 = 0;
-pub const RESULT_INIT_ERROR: i32 = -1;
+pub enum Result {
+    Ok,
+    InitError,
+}
+
+pub enum Event {
+    ActivateApp,
+    DeactivateApp,
+    IconifyApp,
+    DeiconifyApp,
+    Unknown,
+}
+
+impl Event {
+    pub unsafe fn from(event: *const dmExtension::Event) -> Self {
+        let id = (*event).m_Event;
+        match id {
+            0 => Self::ActivateApp,
+            1 => Self::DeactivateApp,
+            2 => Self::IconifyApp,
+            3 => Self::DeiconifyApp,
+            _ => Self::Unknown,
+        }
+    }
+}
+
+impl From<Result> for i32 {
+    fn from(result: Result) -> Self {
+        match result {
+            Result::Ok => 0,
+            Result::InitError => -1,
+        }
+    }
+}
+
+pub struct AppParams {
+    pub config_file: dmconfigfile::ConfigFile,
+    pub ptr: RawAppParams,
+}
+
+impl AppParams {
+    pub unsafe fn from(params: RawAppParams) -> Self {
+        Self {
+            config_file: (*params).m_ConfigFile,
+            ptr: params,
+        }
+    }
+}
+
+pub struct Params {
+    pub config_file: dmconfigfile::ConfigFile,
+    pub l: lua::State,
+    pub ptr: RawParams,
+}
+
+impl Params {
+    pub unsafe fn from(params: RawParams) -> Self {
+        Self {
+            config_file: (*params).m_ConfigFile,
+            l: (*params).m_L,
+            ptr: params,
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! declare_app_callback {
+    ($symbol:ident, $option:expr) => {
+        #[no_mangle]
+        unsafe extern "C" fn $symbol(params: dmextension::RawAppParams) -> i32 {
+            let func: Option<dmextension::AppCallback> = $option;
+            match func {
+                Some(func) => func(dmextension::AppParams::from(params)).into(),
+                None => 0,
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! declare_callback {
+    ($symbol:ident, $option:expr) => {
+        #[no_mangle]
+        unsafe extern "C" fn $symbol(params: dmextension::RawParams) -> i32 {
+            let func: Option<dmextension::Callback> = $option;
+            match func {
+                Some(func) => func(dmextension::Params::from(params)).into(),
+                None => 0,
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! declare_event_callback {
+    ($symbol:ident, $option:expr) => {
+        #[no_mangle]
+        unsafe extern "C" fn $symbol(params: dmextension::RawParams, event: dmextension::RawEvent) {
+            let func: Option<dmextension::EventCallback> = $option;
+            match func {
+                Some(func) => func(
+                    dmextension::Params::from(params),
+                    dmextension::Event::from(event),
+                ),
+                None => {}
+            }
+        }
+    };
+}
 
 /// Equivalent to `DM_DECLARE_EXTENSION` in regular C++ extensions.
 ///
@@ -61,18 +172,25 @@ macro_rules! declare_extension {
                 _bindgen_opaque_blob: [0u64; 11],
             };
 
+            declare_app_callback!([<$symbol _app_init>], $app_init);
+            declare_app_callback!([<$symbol _app_final>], $app_final);
+            declare_callback!([<$symbol _ext_init>], $ext_init);
+            declare_callback!([<$symbol _ext_final>], $ext_final);
+            declare_callback!([<$symbol _on_update>], $on_update);
+            declare_event_callback!([<$symbol _on_event>], $on_event);
+
             #[no_mangle]
             #[dmextension::ctor]
             unsafe fn $symbol() {
                 dmextension::_register(
                     stringify!($symbol),
                     &mut [<$symbol _DESC>],
-                    $app_init,
-                    $app_final,
-                    $ext_init,
-                    $ext_final,
-                    $on_update,
-                    $on_event,
+                    [<$symbol _app_init>],
+                    [<$symbol _app_final>],
+                    [<$symbol _ext_init>],
+                    [<$symbol _ext_final>],
+                    [<$symbol _on_update>],
+                    [<$symbol _on_event>],
                 );
             }
         }
@@ -83,12 +201,12 @@ macro_rules! declare_extension {
 pub fn _register(
     name: &str,
     desc: &mut Desc,
-    app_init: Option<AppCallback>,
-    app_final: Option<AppCallback>,
-    ext_init: Option<Callback>,
-    ext_final: Option<Callback>,
-    update: Option<Callback>,
-    on_event: Option<EventCallback>,
+    app_init: RawAppCallback,
+    app_final: RawAppCallback,
+    ext_init: RawCallback,
+    ext_final: RawCallback,
+    update: RawCallback,
+    on_event: RawEventCallback,
 ) {
     let name = CString::new(name).unwrap();
 
@@ -97,12 +215,12 @@ pub fn _register(
             desc,
             11,
             name.as_ptr(),
-            app_init,
-            app_final,
-            ext_init,
-            ext_final,
-            update,
-            on_event,
+            Some(app_init),
+            Some(app_final),
+            Some(ext_init),
+            Some(ext_final),
+            Some(update),
+            Some(on_event),
         );
     }
 }
