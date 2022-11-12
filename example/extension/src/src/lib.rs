@@ -5,7 +5,7 @@ use dmsdk::*;
 // LUA FUNCTIONS //
 #[no_mangle]
 pub extern "C" fn lua_function(l: lua::State) -> i32 {
-    dmlog::info("RUST", "Hello from Rust!");
+    dmsdk::info!("Hello from Rust!");
 
     unsafe {
         lua::push_integer(l, 123);
@@ -39,7 +39,7 @@ extern "C" fn create_userdata(l: lua::State) -> i32 {
 #[no_mangle]
 extern "C" fn read_userdata(l: lua::State) -> i32 {
     let userdata: Vec<i32> = unsafe { lua::to_userdata(l, 1) };
-    dmlog::info("RUST", &format!("Userdata: {:?}", userdata));
+    dmsdk::info!("Userdata: {:?}", userdata);
 
     0
 }
@@ -71,12 +71,13 @@ fn app_init(params: dmextension::AppParams) -> dmextension::Result {
         let display_width = dmconfigfile::get_int(config, "display.width", 640);
         let gravity = dmconfigfile::get_float(config, "physics.gravity_y", -9.8);
 
-        dmlog::info("RUST", &format!("Display width is: {display_width}"));
-        dmlog::info("RUST", &format!("Project title is: {title}"));
-        dmlog::info("RUST", &format!("Gravity is: {gravity}"));
+        dmsdk::info!("Display width is: {display_width}");
+        dmsdk::info!("Project title is: {title}");
+        dmsdk::info!("Gravity is: {gravity}");
     }
 
-    dmlog::info("RUST", &format!("Current time is: {}", dmtime::get_time()));
+    let time = dmtime::get_time();
+    dmsdk::info!("Current time is: {time}");
 
     dmextension::Result::Ok
 }
@@ -96,12 +97,12 @@ fn ext_init(params: dmextension::Params) -> dmextension::Result {
         lua_init(params.l);
     }
 
-    dmlog::info("RUST", "Registered Rust Extension");
+    dmsdk::info!("Registered Rust extension");
 
     let json = "{\"foo\": \"bar\", \"cool_number\": 1234}";
     match dmjson::parse(json) {
         dmjson::Result::Ok(document) => {
-            dmlog::info("RUST", &format!("dmjson::parse() -> {:#?}", document))
+            dmsdk::info!("dmjson::parse() -> {:#?}", document);
         }
         dmjson::Result::Err(err) => {
             println!("Error parsing JSON: {:?}", err)

@@ -30,7 +30,17 @@ pub enum Event {
     Unknown,
 }
 
+impl From<Result> for i32 {
+    fn from(result: Result) -> Self {
+        match result {
+            Result::Ok => 0,
+            Result::InitError => -1,
+        }
+    }
+}
+
 impl Event {
+    #[allow(clippy::missing_safety_doc)]
     pub unsafe fn from(event: *const dmExtension::Event) -> Self {
         let id = (*event).m_Event;
         match id {
@@ -43,27 +53,9 @@ impl Event {
     }
 }
 
-impl From<Result> for i32 {
-    fn from(result: Result) -> Self {
-        match result {
-            Result::Ok => 0,
-            Result::InitError => -1,
-        }
-    }
-}
-
 pub struct AppParams {
     pub config_file: dmconfigfile::ConfigFile,
     pub ptr: RawAppParams,
-}
-
-impl AppParams {
-    pub unsafe fn from(params: RawAppParams) -> Self {
-        Self {
-            config_file: (*params).m_ConfigFile,
-            ptr: params,
-        }
-    }
 }
 
 pub struct Params {
@@ -72,7 +64,18 @@ pub struct Params {
     pub ptr: RawParams,
 }
 
+impl AppParams {
+    #[allow(clippy::missing_safety_doc)]
+    pub unsafe fn from(params: RawAppParams) -> Self {
+        Self {
+            config_file: (*params).m_ConfigFile,
+            ptr: params,
+        }
+    }
+}
+
 impl Params {
+    #[allow(clippy::missing_safety_doc)]
     pub unsafe fn from(params: RawParams) -> Self {
         Self {
             config_file: (*params).m_ConfigFile,
@@ -171,6 +174,8 @@ macro_rules! declare_extension {
             static mut [<$symbol _DESC>]: dmextension::Desc = dmextension::Desc {
                 _bindgen_opaque_blob: [0u64; 11],
             };
+
+            const LOG_DOMAIN: &str = stringify!($symbol);
 
             declare_app_callback!([<$symbol _app_init>], $app_init);
             declare_app_callback!([<$symbol _app_final>], $app_final);

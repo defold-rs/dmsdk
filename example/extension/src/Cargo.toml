@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 dmsdk = { git = "https://github.com/JustAPotota/defold-rs" }
+#dmsdk = { path = "../../../dmsdk" }
 base64 = "0.13.0"
 
 [workspace] # This is just here so it doesn't conflict with the `dmsdk` workspace
