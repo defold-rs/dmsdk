@@ -7,6 +7,13 @@ pub type State = *mut dmsdk_ffi::lua_State;
 pub type Function = extern "C" fn(l: State) -> i32;
 pub type Reg = &'static [(&'static str, Function)];
 
+#[macro_export]
+macro_rules! new_reg {
+    ($($func:ident),*) => {
+        &[$((stringify!($func), $func), )*]
+    };
+}
+
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.

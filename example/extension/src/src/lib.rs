@@ -54,13 +54,13 @@ pub extern "C" fn b64_encode(l: lua::State) -> i32 {
     1
 }
 
-const LUA_FUNCTIONS: lua::Reg = &[
-    ("reverse", reverse),
-    ("lua_function", lua_function),
-    ("b64_encode", b64_encode),
-    ("create_userdata", create_userdata),
-    ("read_userdata", read_userdata),
-];
+const LUA_FUNCTIONS: lua::Reg = new_reg!(
+    reverse,
+    lua_function,
+    b64_encode,
+    create_userdata,
+    read_userdata
+);
 
 // LIFECYCLE FUNCTIONS //
 fn app_init(params: dmextension::AppParams) -> dmextension::Result {
