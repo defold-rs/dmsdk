@@ -34,21 +34,16 @@ pub fn log(severity: Severity, domain: &str, message: &str) {
 }
 
 #[macro_export]
-macro_rules! _log_internal {
-    ($severity:ident, $($arg:tt)*) => {};
-}
-
-#[macro_export]
 macro_rules! debug {
-    ($($arg:tt)+) => {
-        _log_internal!(Debug, $($arg)+)
+    ($($arg:tt)*) => {
+        dmlog::log(dmlog::Severity::Debug, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
 #[macro_export]
 macro_rules! user_debug {
-    ($($arg:tt)+) => {
-        _log_internal!(UserDebug, $($arg)+)
+    ($($arg:tt)*) => {
+        dmlog::log(dmlog::Severity::UserDebug, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
@@ -61,21 +56,21 @@ macro_rules! info {
 
 #[macro_export]
 macro_rules! warning {
-    ($($arg:tt)+) => {
-        _log_internal!(Warning, $($arg)+)
+    ($($arg:tt)*) => {
+        dmlog::log(dmlog::Severity::Warning, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
 #[macro_export]
 macro_rules! error {
-    ($($arg:tt)+) => {
-        _log_internal!(Error, $($arg)+)
+    ($($arg:tt)*) => {
+        dmlog::log(dmlog::Severity::Error, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
 #[macro_export]
 macro_rules! fatal {
-    ($($arg:tt)+) => {
-        _log_internal!(Fatal, $($arg)+)
+    ($($arg:tt)*) => {
+        dmlog::log(dmlog::Severity::Fatal, LOG_DOMAIN, &format!($($arg)*));
     };
 }
