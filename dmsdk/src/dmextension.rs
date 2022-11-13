@@ -85,8 +85,9 @@ impl Params {
     }
 }
 
+#[doc(hidden)]
 #[macro_export]
-macro_rules! declare_app_callback {
+macro_rules! __declare_app_callback {
     ($symbol:ident, $option:expr) => {
         #[no_mangle]
         unsafe extern "C" fn $symbol(params: dmextension::RawAppParams) -> i32 {
@@ -99,8 +100,9 @@ macro_rules! declare_app_callback {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
-macro_rules! declare_callback {
+macro_rules! __declare_callback {
     ($symbol:ident, $option:expr) => {
         #[no_mangle]
         unsafe extern "C" fn $symbol(params: dmextension::RawParams) -> i32 {
@@ -113,8 +115,9 @@ macro_rules! declare_callback {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
-macro_rules! declare_event_callback {
+macro_rules! __declare_event_callback {
     ($symbol:ident, $option:expr) => {
         #[no_mangle]
         unsafe extern "C" fn $symbol(params: dmextension::RawParams, event: dmextension::RawEvent) {
@@ -137,19 +140,14 @@ macro_rules! declare_event_callback {
 /// use dmsdk::*;
 ///
 /// fn app_init(params: dmextension::AppParams) -> dmextension::Result { dmextension::Result::Ok }
-///
 /// fn app_final(params: dmextension::AppParams) -> dmextension::Result { dmextension::Result::Ok }
-///
 /// fn ext_init(params: dmextension::Params) -> dmextension::Result {
 ///     dmsdk::info!("Registered extension MY_EXTENSION");
 ///     
 ///     dmextension::Result::Ok
 /// }
-///
 /// fn ext_final(params: dmextension::Params) -> dmextension::Result { dmextension::Result::Ok }
-///
 /// fn on_update(params: dmextension::Params) -> dmextension::Result { dmextension::Result::Ok }
-///
 /// fn on_event(params: dmextension::Params, event: dmextension::Event) { }
 ///
 /// declare_extension!(MY_EXTENSION, Some(app_init), Some(app_final), Some(ext_init), Some(ext_final), Some(on_update), Some(on_event));
@@ -164,17 +162,17 @@ macro_rules! declare_extension {
 
             const LOG_DOMAIN: &str = stringify!($symbol);
 
-            declare_app_callback!([<$symbol _app_init>], $app_init);
-            declare_app_callback!([<$symbol _app_final>], $app_final);
-            declare_callback!([<$symbol _ext_init>], $ext_init);
-            declare_callback!([<$symbol _ext_final>], $ext_final);
-            declare_callback!([<$symbol _on_update>], $on_update);
-            declare_event_callback!([<$symbol _on_event>], $on_event);
+            __declare_app_callback!([<$symbol _app_init>], $app_init);
+            __declare_app_callback!([<$symbol _app_final>], $app_final);
+            __declare_callback!([<$symbol _ext_init>], $ext_init);
+            __declare_callback!([<$symbol _ext_final>], $ext_final);
+            __declare_callback!([<$symbol _on_update>], $on_update);
+            __declare_event_callback!([<$symbol _on_event>], $on_event);
 
             #[no_mangle]
             #[dmextension::ctor]
             unsafe fn $symbol() {
-                dmextension::_register(
+                dmextension::__register(
                     stringify!($symbol),
                     &mut [<$symbol _DESC>],
                     [<$symbol _app_init>],
@@ -190,7 +188,7 @@ macro_rules! declare_extension {
 }
 
 #[allow(clippy::too_many_arguments)]
-pub fn _register(
+pub fn __register(
     name: &str,
     desc: &mut Desc,
     app_init: RawAppCallback,

@@ -1,4 +1,4 @@
-//! Logging functions.
+//! Logging functions. **Use these instead of the macros listed on the main page!**
 
 use std::ffi::CString;
 
@@ -33,55 +33,116 @@ pub fn log(severity: Severity, domain: &str, message: &str) {
     }
 }
 
-#[doc(hidden)]
+/// Logs a message with severity [`Severity::Debug`].
+///
+/// The arguments are the same as [`format!`].
+///
+/// # Examples
+/// ```
+/// dmlog::debug!("This is a debug message!");
+///
+/// let lucky_number = 7;
+/// dmlog::debug!("Lucky number: {lucky_number}");
+/// ```
 #[macro_export]
-macro_rules! _debug {
+macro_rules! __internal_debug {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Debug, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
-#[doc(hidden)]
+/// Logs a message with severity [`Severity::UserDebug`].
+///
+/// Its usage is the same as [`println!`].
+///
+/// # Examples
+/// ```
+/// dmlog::user_debug!("This is a user debug message!");
+///
+/// let lucky_number = 7;
+/// dmlog::user_debug!("Lucky number: {lucky_number}");
+/// ```
 #[macro_export]
-macro_rules! _user_debug {
+macro_rules! __internal_user_debug {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::UserDebug, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
-#[doc(hidden)]
+/// Logs a message with severity [`Severity::Info`].
+///
+/// Its usage is the same as [`println!`].
+///
+/// # Examples
+/// ```
+/// dmlog::info!("This is an informative message!");
+///
+/// let lucky_number = 7;
+/// dmlog::info!("Lucky number: {lucky_number}");
+/// ```
 #[macro_export]
-macro_rules! _info {
+macro_rules! __internal_info {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Info, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
-#[doc(hidden)]
+/// Logs a message with severity [`Severity::Warning`].
+///
+/// Its usage is the same as [`println!`].
+///
+/// # Examples
+/// ```
+/// dmlog::warning!("This is a warning message!");
+///
+/// let lucky_number = 7;
+/// dmlog::warning!("Lucky number: {lucky_number}");
+/// ```
 #[macro_export]
-macro_rules! _warning {
+macro_rules! __internal_warning {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Warning, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
-#[doc(hidden)]
+/// Logs a message with severity [`Severity::Error`].
+///
+/// Its usage is the same as [`println!`].
+///
+/// # Examples
+/// ```
+/// dmlog::error!("This is an error message!");
+///
+/// let lucky_number = 7;
+/// dmlog::error!("Lucky number: {lucky_number}");
+/// ```
 #[macro_export]
-macro_rules! _error {
+macro_rules! __internal_error {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Error, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
-#[doc(hidden)]
+/// Logs a message with severity [`Severity::Fatal`].
+///
+/// Its usage is the same as [`println!`].
+///
+/// # Examples
+/// ```
+/// dmlog::fatal!("Something has gone very, very wrong!");
+///
+/// let lucky_number = 7;
+/// dmlog::fatal!("Lucky number: {lucky_number}");
+/// ```
 #[macro_export]
-macro_rules! _fatal {
+macro_rules! __internal_fatal {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Fatal, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
+#[doc(inline)]
 pub use crate::{
-    _debug as debug, _error as error, _fatal as fatal, _info as info, _user_debug as user_debug,
-    _warning as warning,
+    __internal_debug as debug, __internal_error as error, __internal_fatal as fatal,
+    __internal_info as info, __internal_user_debug as user_debug, __internal_warning as warning,
 };
