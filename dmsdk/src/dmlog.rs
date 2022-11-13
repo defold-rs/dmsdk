@@ -33,44 +33,55 @@ pub fn log(severity: Severity, domain: &str, message: &str) {
     }
 }
 
+#[doc(hidden)]
 #[macro_export]
-macro_rules! debug {
+macro_rules! _debug {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Debug, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
-macro_rules! user_debug {
+macro_rules! _user_debug {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::UserDebug, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
-macro_rules! info {
+macro_rules! _info {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Info, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
-macro_rules! warning {
+macro_rules! _warning {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Warning, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
-macro_rules! error {
+macro_rules! _error {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Error, LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
-macro_rules! fatal {
+macro_rules! _fatal {
     ($($arg:tt)*) => {
         dmlog::log(dmlog::Severity::Fatal, LOG_DOMAIN, &format!($($arg)*));
     };
 }
+
+pub use crate::{
+    _debug as debug, _error as error, _fatal as fatal, _info as info, _user_debug as user_debug,
+    _warning as warning,
+};
