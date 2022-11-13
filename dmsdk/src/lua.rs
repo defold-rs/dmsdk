@@ -7,10 +7,44 @@ pub type State = *mut dmsdk_ffi::lua_State;
 pub type Function = extern "C" fn(l: State) -> i32;
 pub type Reg = &'static [(&'static str, Function)];
 
+/// Creates a new constant [`Reg`] with the name provided, to be used with [`register()`].
+///
+/// # Examples
+/// ```
+/// use dmsdk::*;
+///
+/// fn hello_world(l: lua::State) -> i32 {
+///     unsafe { lua::push_string(l, "Hello, world!"); }
+///
+///     1
+/// }
+///
+/// fn the_answer(l: lua::State) -> i32 {
+///     unsafe { lua::push_integer(l, 42); }
+///
+///     1
+/// }
+///
+/// // Equivalent to `const LUA_FUNCTIONS: lua::Reg = ...`
+/// declare_functions!(
+///     LUA_FUNCTIONS,
+///     hello_world,
+///     the_answer
+/// );
+/// ```
 #[macro_export]
-macro_rules! new_reg {
-    ($($func:ident),*) => {
-        &[$((stringify!($func), $func), )*]
+macro_rules! declare_functions {
+    ($ident:ident, $($func:ident),*) => {
+        paste! {
+             const $ident: lua::Reg = &[$((stringify!($func), [<_wrapped_ $func>]), )*];
+
+             $(
+                #[no_mangle]
+                extern "C" fn [<_wrapped_ $func>](l: lua::State) -> i32 {
+                    $func(l)
+                }
+            )*
+        }
     };
 }
 

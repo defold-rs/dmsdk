@@ -134,38 +134,25 @@ macro_rules! declare_event_callback {
 ///
 /// # Examples
 /// ```
-/// #[macro_use]
-/// extern crate dmsdk;
-/// use dmsdk::{
-///     dmlog,
-///     dmextension::{self, AppParams, Params, Event},
-/// };
+/// use dmsdk::*;
 ///
-/// #[no_mangle]
-/// pub unsafe extern "C" fn ext_init(params: Params) -> i32 {
-///     dmlog::info("MY_EXTENSION", "Registered extension MY_EXTENSION");
+/// fn app_init(params: dmextension::AppParams) -> dmextension::Result { dmextension::Result::Ok }
+///
+/// fn app_final(params: dmextension::AppParams) -> dmextension::Result { dmextension::Result::Ok }
+///
+/// fn ext_init(params: dmextension::Params) -> dmextension::Result {
+///     dmsdk::info!("Registered extension MY_EXTENSION");
 ///     
-///     dmextension::RESULT_OK
+///     dmextension::Result::Ok
 /// }
 ///
-/// #[no_mangle]
-/// pub unsafe extern "C" fn ext_final(params: Params) -> i32 { dmextension::RESULT_OK }
+/// fn ext_final(params: dmextension::Params) -> dmextension::Result { dmextension::Result::Ok }
 ///
-/// #[no_mangle]
-/// pub unsafe extern "C" fn app_init(params: AppParams) -> i32 { dmextension::RESULT_OK }
+/// fn on_update(params: dmextension::Params) -> dmextension::Result { dmextension::Result::Ok }
 ///
-/// #[no_mangle]
-/// pub unsafe extern "C" fn app_final(params: AppParams) -> i32 { dmextension::RESULT_OK }
+/// fn on_event(params: dmextension::Params, event: dmextension::Event) { }
 ///
-/// #[no_mangle]
-/// pub unsafe extern "C" fn update(params: Params) -> i32 { dmextension::RESULT_OK }
-///
-/// #[no_mangle]
-/// pub unsafe extern "C" fn on_event(params: Params, event: Event) { }
-///
-/// declare_extension!(MY_EXTENSION, Some(app_init), Some(app_final), Some(ext_init), Some(ext_final), Some(update), Some(on_event));
-///
-/// # fn main() {}
+/// declare_extension!(MY_EXTENSION, Some(app_init), Some(app_final), Some(ext_init), Some(ext_final), Some(on_update), Some(on_event));
 /// ```
 #[macro_export]
 macro_rules! declare_extension {

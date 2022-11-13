@@ -3,8 +3,7 @@
 use dmsdk::*;
 
 // LUA FUNCTIONS //
-#[no_mangle]
-pub extern "C" fn lua_function(l: lua::State) -> i32 {
+fn lua_function(l: lua::State) -> i32 {
     dmsdk::info!("Hello from Rust!");
 
     unsafe {
@@ -14,8 +13,7 @@ pub extern "C" fn lua_function(l: lua::State) -> i32 {
     1
 }
 
-#[no_mangle]
-pub extern "C" fn reverse(l: lua::State) -> i32 {
+fn reverse(l: lua::State) -> i32 {
     let to_reverse = unsafe { lua::check_string(l, 1) };
     let reversed: String = to_reverse.chars().rev().collect();
 
@@ -26,8 +24,7 @@ pub extern "C" fn reverse(l: lua::State) -> i32 {
     1
 }
 
-#[no_mangle]
-extern "C" fn create_userdata(l: lua::State) -> i32 {
+fn create_userdata(l: lua::State) -> i32 {
     let userdata = vec![1, 2, 3];
     unsafe {
         lua::push_userdata(l, userdata);
@@ -36,16 +33,14 @@ extern "C" fn create_userdata(l: lua::State) -> i32 {
     1
 }
 
-#[no_mangle]
-extern "C" fn read_userdata(l: lua::State) -> i32 {
+fn read_userdata(l: lua::State) -> i32 {
     let userdata: Vec<i32> = unsafe { lua::to_userdata(l, 1) };
     dmsdk::info!("Userdata: {:?}", userdata);
 
     0
 }
 
-#[no_mangle]
-pub extern "C" fn b64_encode(l: lua::State) -> i32 {
+fn b64_encode(l: lua::State) -> i32 {
     unsafe {
         let plaintext = lua::check_string(l, 1);
         lua::push_string(l, &base64::encode(plaintext));
@@ -54,12 +49,13 @@ pub extern "C" fn b64_encode(l: lua::State) -> i32 {
     1
 }
 
-const LUA_FUNCTIONS: lua::Reg = new_reg!(
-    reverse,
+declare_functions!(
+    TEST,
     lua_function,
-    b64_encode,
+    reverse,
     create_userdata,
-    read_userdata
+    read_userdata,
+    b64_encode
 );
 
 // LIFECYCLE FUNCTIONS //
@@ -85,7 +81,7 @@ fn app_init(params: dmextension::AppParams) -> dmextension::Result {
 unsafe fn lua_init(l: lua::State) {
     let top = lua::get_top(l);
 
-    lua::register(l, "rust", LUA_FUNCTIONS);
+    lua::register(l, "rust", TEST);
 
     lua::pop(l, 1);
 
