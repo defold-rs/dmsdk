@@ -1,9 +1,7 @@
 extern crate bindgen;
 
 use glob::glob;
-use std::collections::HashSet;
-use std::env;
-use std::path::PathBuf;
+use std::{collections::HashSet, env, path::PathBuf, str::FromStr};
 
 #[derive(Debug)]
 struct IgnoreMacros(HashSet<String>);
@@ -25,6 +23,11 @@ fn _defold_allowlist(mut builder: bindgen::Builder) -> bindgen::Builder {
     }
 
     builder
+}
+
+fn windows_sdk_exists() -> bool {
+    let path = PathBuf::from_str("/opt/platformsdk/Win32").expect("Invalid SDK path, somehow");
+    path.is_dir()
 }
 
 fn main() {
@@ -56,6 +59,26 @@ fn main() {
         .collect(),
     );
 
+    let mut clang_args: Vec<String> = Vec::new();
+
+    if windows_sdk_exists() {
+        let include_paths = vec![
+            "MicrosoftVisualStudio2019/VC/Tools/MSVC/14.25.28610//include",
+            "MicrosoftVisualStudio2019/VC/Tools/MSVC/14.25.28610//atlmfc/include",
+            "WindowsKits/10//Include/10.0.18362.0/ucrt",
+            "WindowsKits/10//Include/10.0.18362.0/winrt",
+            "WindowsKits/10//Include/10.0.18362.0/um",
+            "WindowsKits/10//Include/10.0.18362.0/shared",
+        ];
+
+        for arg in include_paths
+            .iter()
+            .map(|s| format!("-isystem /opt/platformsdk/Win32/{}", s))
+        {
+            clang_args.push(arg);
+        }
+    }
+
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
     // the resulting bindings.
@@ -66,6 +89,7 @@ fn main() {
         // The input header we would like to generate
         // bindings for.
         .header("dmsdk/sdk.h")
+        .clang_args(clang_args.iter())
         //.blocklist_file("graphics_native.h")
         //.blocklist_file("dmsdk/graphics/glfw/glfw.h")
         .blocklist_item("std")
