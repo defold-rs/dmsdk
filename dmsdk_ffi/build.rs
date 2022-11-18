@@ -25,11 +25,6 @@ fn _defold_allowlist(mut builder: bindgen::Builder) -> bindgen::Builder {
     builder
 }
 
-fn windows_sdk_exists() -> bool {
-    let path = PathBuf::from_str("/opt/platformsdk/Win32").expect("Invalid SDK path, somehow");
-    path.is_dir()
-}
-
 fn main() {
     // Tell cargo to look for shared libraries in the specified directory
     //println!("cargo:rustc-link-search=/path/to/lib");
@@ -60,23 +55,20 @@ fn main() {
     );
 
     let mut clang_args: Vec<String> = Vec::new();
+    let include_paths = vec![
+        "MicrosoftVisualStudio2019/VC/Tools/MSVC/14.25.28610//include",
+        "MicrosoftVisualStudio2019/VC/Tools/MSVC/14.25.28610//atlmfc/include",
+        "WindowsKits/10//Include/10.0.18362.0/ucrt",
+        "WindowsKits/10//Include/10.0.18362.0/winrt",
+        "WindowsKits/10//Include/10.0.18362.0/um",
+        "WindowsKits/10//Include/10.0.18362.0/shared",
+    ];
 
-    if windows_sdk_exists() {
-        let include_paths = vec![
-            "MicrosoftVisualStudio2019/VC/Tools/MSVC/14.25.28610//include",
-            "MicrosoftVisualStudio2019/VC/Tools/MSVC/14.25.28610//atlmfc/include",
-            "WindowsKits/10//Include/10.0.18362.0/ucrt",
-            "WindowsKits/10//Include/10.0.18362.0/winrt",
-            "WindowsKits/10//Include/10.0.18362.0/um",
-            "WindowsKits/10//Include/10.0.18362.0/shared",
-        ];
-
-        for arg in include_paths
-            .iter()
-            .map(|s| format!("-isystem /opt/platformsdk/Win32/{}", s))
-        {
-            clang_args.push(arg);
-        }
+    for arg in include_paths
+        .iter()
+        .map(|s| format!("-isystem /opt/platformsdk/Win32/{}", s))
+    {
+        clang_args.push(arg);
     }
 
     // The bindgen::Builder is the main entry point
