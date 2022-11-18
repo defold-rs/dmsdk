@@ -1,7 +1,7 @@
 extern crate bindgen;
 
 use glob::glob;
-use std::{collections::HashSet, env, path::PathBuf, str::FromStr};
+use std::{collections::HashSet, env, path::PathBuf};
 
 #[derive(Debug)]
 struct IgnoreMacros(HashSet<String>);
@@ -66,8 +66,9 @@ fn main() {
 
     for arg in include_paths
         .iter()
-        .map(|s| format!("-isystem /opt/platformsdk/Win32/{}", s))
+        .map(|s| format!("/opt/platformsdk/Win32/{}", s))
     {
+        clang_args.push("-isystem ".to_owned());
         clang_args.push(arg);
     }
 
