@@ -54,35 +54,16 @@ fn main() {
         .collect(),
     );
 
-    let mut clang_args: Vec<String> = Vec::new();
-    let include_paths = vec![
-        "MicrosoftVisualStudio2019/VC/Tools/MSVC/14.25.28610//include",
-        "MicrosoftVisualStudio2019/VC/Tools/MSVC/14.25.28610//atlmfc/include",
-        "WindowsKits/10//Include/10.0.18362.0/ucrt",
-        "WindowsKits/10//Include/10.0.18362.0/winrt",
-        "WindowsKits/10//Include/10.0.18362.0/um",
-        "WindowsKits/10//Include/10.0.18362.0/shared",
-    ];
-
-    for arg in include_paths
-        .iter()
-        .map(|s| format!("/opt/platformsdk/Win32/{}", s))
-    {
-        clang_args.push("-isystem ".to_owned());
-        clang_args.push(arg);
-    }
-
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
     // the resulting bindings.
-    let bindings = bindgen::Builder::default() //defold_allowlist(bindgen::Builder::default())
+    let builder = bindgen::Builder::default() //defold_allowlist(bindgen::Builder::default())
         .enable_cxx_namespaces()
         // Set the include path and force C++ mode
         .clang_args(vec!["-I.", "-x", "c++"].iter())
         // The input header we would like to generate
         // bindings for.
         .header("dmsdk/sdk.h")
-        .clang_args(clang_args.iter())
         //.blocklist_file("graphics_native.h")
         //.blocklist_file("dmsdk/graphics/glfw/glfw.h")
         .blocklist_item("std")
@@ -99,7 +80,9 @@ fn main() {
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .parse_callbacks(Box::new(ignored_macros))
-        .rustfmt_bindings(true)
+        .rustfmt_bindings(true);
+
+    let bindings = builder
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
