@@ -54,12 +54,25 @@ impl From<Vectormath::Aos::Point3> for Point3 {
     }
 }
 
+#[cfg(target_env = "gnu")]
 impl From<Point3> for Vectormath::Aos::Point3 {
     fn from(p: Point3) -> Self {
         Self {
             mX: p.x,
             mY: p.y,
             mZ: p.z,
+        }
+    }
+}
+
+#[cfg(not(target_env = "gnu"))]
+impl From<Point3> for Vectormath::Aos::Point3 {
+    fn from(p: Point3) -> Self {
+        Self {
+            mX: p.x,
+            mY: p.y,
+            mZ: p.z,
+            d: 0.0,
         }
     }
 }
@@ -74,6 +87,7 @@ impl From<Vectormath::Aos::Vector3> for Vector3 {
     }
 }
 
+#[cfg(target_env = "gnu")]
 impl From<Vector3> for Vectormath::Aos::Vector3 {
     fn from(v: Vector3) -> Self {
         Self {
@@ -84,12 +98,14 @@ impl From<Vector3> for Vectormath::Aos::Vector3 {
     }
 }
 
-impl<'a> From<&'a Vector3> for Vectormath::Aos::Vector3 {
-    fn from(v: &'a Vector3) -> Self {
+#[cfg(not(target_env = "gnu"))]
+impl From<Vector3> for Vectormath::Aos::Vector3 {
+    fn from(v: Vector3) -> Self {
         Self {
             mX: v.x,
             mY: v.y,
             mZ: v.z,
+            d: 0.0,
         }
     }
 }
