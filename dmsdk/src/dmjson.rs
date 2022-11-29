@@ -38,6 +38,12 @@ impl From<u32> for Kind {
     }
 }
 
+impl From<i32> for Kind {
+    fn from(n: i32) -> Self {
+        Kind::from(n as u32)
+    }
+}
+
 #[derive(Debug)]
 pub struct Node {
     pub kind: Kind,

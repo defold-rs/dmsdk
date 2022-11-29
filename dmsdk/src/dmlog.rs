@@ -24,6 +24,12 @@ impl From<Severity> for u32 {
     }
 }
 
+impl From<Severity> for i32 {
+    fn from(severity: Severity) -> Self {
+        u32::from(severity) as i32
+    }
+}
+
 pub fn log(severity: Severity, domain: &str, message: &str) {
     let message = CString::new(message).unwrap();
     let domain = CString::new(domain).unwrap();
