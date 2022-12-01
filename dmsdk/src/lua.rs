@@ -52,7 +52,12 @@ macro_rules! declare_functions {
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
 pub unsafe fn push_userdata<T>(l: State, userdata: T) {
-    let ptr = dmsdk_ffi::lua_newuserdata(l, size_of::<T>() as u64) as *mut T;
+    let ptr = dmsdk_ffi::lua_newuserdata(
+        l,
+        size_of::<T>()
+            .try_into()
+            .expect("Failed to convert struct size"),
+    ) as *mut T;
     ptr.write(userdata);
 }
 
