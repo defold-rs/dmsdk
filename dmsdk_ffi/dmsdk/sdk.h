@@ -37,7 +37,7 @@
 #include <dmsdk/graphics/graphics.h>
 #include <dmsdk/vectormath/cpp/vectormath_aos.h>
 
-#include <dmsdk/extension.h>
+//#include <dmsdk/extension.h>
 #include <dmsdk/resource/resource.h>
 //#include <dmsdk/gameobject_private.h>
 //#include <dmsdk/resource/resource_private.h>
