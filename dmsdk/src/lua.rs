@@ -164,7 +164,10 @@ pub unsafe fn register(l: State, lib_name: &str, functions: &[(&str, Function)])
     dmsdk_ffi::luaL_register(l, lib_name.as_ptr(), lua_fns.as_ptr());
 }
 
-fn error(l: State) -> ! {
+/// # Safety
+///
+/// This function is safe as long as `l` points to a valid Lua state.
+pub unsafe fn error(l: State) -> ! {
     unsafe {
         dmsdk_ffi::lua_error(l);
     }
