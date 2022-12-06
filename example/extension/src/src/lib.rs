@@ -95,16 +95,6 @@ fn ext_init(params: dmextension::Params) -> dmextension::Result {
 
     dmlog::info!("Registered Rust extension");
 
-    let json = "{\"foo\": \"bar\", \"cool_number\": 1234}";
-    match dmjson::parse(json) {
-        dmjson::Result::Ok(document) => {
-            dmlog::info!("dmjson::parse() -> {:#?}", document);
-        }
-        dmjson::Result::Err(err) => {
-            println!("Error parsing JSON: {:?}", err)
-        }
-    }
-
     dmextension::Result::Ok
 }
 
