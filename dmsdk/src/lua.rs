@@ -96,8 +96,15 @@ pub unsafe fn check_string(l: State, i: i32) -> String {
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
 pub unsafe fn check_bytes(l: State, i: i32) -> Vec<u8> {
-    let ptr = dmsdk_ffi::luaL_checklstring(l, i, std::ptr::null_mut());
-    Vec::from(CStr::from_ptr(ptr).to_bytes())
+    let mut length = 0;
+    let ptr = dmsdk_ffi::luaL_checklstring(l, i, &mut length);
+
+    // There's probably a better way to read X bytes from a ptr
+    let mut vec = Vec::new();
+    for i in 0..length {
+        vec.push(*ptr.add(i as usize) as u8);
+    }
+    vec
 }
 
 /// # Safety
