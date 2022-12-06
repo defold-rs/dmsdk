@@ -3,7 +3,6 @@ pub mod dmengine;
 pub mod dmextension;
 pub mod dmgameobject;
 mod dmhash;
-pub mod dmjson;
 pub mod dmlog;
 pub mod dmresource;
 pub mod dmscript;
