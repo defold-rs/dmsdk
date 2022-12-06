@@ -158,17 +158,7 @@ macro_rules! __declare_event_callback {
 macro_rules! declare_extension {
     ($symbol:ident, $app_init:expr, $app_final:expr, $ext_init:expr, $ext_final:expr, $on_update:expr, $on_event:expr) => {
         paste! {
-            // #[cfg(target_arch = "x86_64")]
-            // static mut [<$symbol _DESC>]: dmextension::Desc = dmextension::Desc {
-            //     _bindgen_opaque_blob: [0u64; 11],
-            // };
-
-            // #[cfg(target_arch = "x86")]
-            // static mut [<$symbol _DESC>]: dmextension::Desc = dmextension::Desc {
-            //     _bindgen_opaque_blob: [0u32; 11],
-            // };
-
-            static mut [<$symbol _DESC>]: [u8; dmextension::DESC_BUFFER_SIZE] = [0u8; dmextension::DESC_BUFFER_SIZE];
+            static mut [<$symbol _DESC>]: dmextension::Desc = [0u8; dmextension::DESC_BUFFER_SIZE];
 
             const LOG_DOMAIN: &str = stringify!($symbol);
 

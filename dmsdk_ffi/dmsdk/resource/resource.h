@@ -3,10 +3,10 @@
 // Copyright 2009-2014 Ragnar Svensson, Christian Murray
 // Licensed under the Defold License version 1.0 (the "License"); you may not use
 // this file except in compliance with the License.
-//
+// 
 // You may obtain a copy of the License, together with FAQs at
 // https://www.defold.com/license
-//
+// 
 // Unless required by applicable law or agreed to in writing, software distributed
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
@@ -25,6 +25,7 @@
  * @path engine/resource/src/dmsdk/resource/resource.h
  */
 
+
 #include <stdint.h>
 #include <dmsdk/dlib/align.h>
 #include <dmsdk/dlib/hash.h>
@@ -35,12 +36,12 @@ namespace dmResource
     /**
      * Factory handle
      */
-    typedef struct SResourceFactory *HFactory;
+    typedef struct SResourceFactory* HFactory;
 
-    typedef struct ResourcePreloader *HPreloader;
-    typedef struct PreloadHintInfo *HPreloadHintInfo;
+    typedef struct ResourcePreloader* HPreloader;
+    typedef struct PreloadHintInfo* HPreloadHintInfo;
 
-    typedef struct SResourceDescriptor *HResourceDescriptor;
+    typedef struct SResourceDescriptor* HResourceDescriptor;
 
     /** result
      * Result
@@ -71,28 +72,28 @@ namespace dmResource
      */
     enum Result
     {
-        RESULT_OK = 0,
-        RESULT_INVALID_DATA = -1,
-        RESULT_DDF_ERROR = -2,
-        RESULT_RESOURCE_NOT_FOUND = -3,
-        RESULT_MISSING_FILE_EXTENSION = -4,
-        RESULT_ALREADY_REGISTERED = -5,
-        RESULT_INVAL = -6,
-        RESULT_UNKNOWN_RESOURCE_TYPE = -7,
-        RESULT_OUT_OF_MEMORY = -8,
-        RESULT_IO_ERROR = -9,
-        RESULT_NOT_LOADED = -10,
-        RESULT_OUT_OF_RESOURCES = -11,
-        RESULT_STREAMBUFFER_TOO_SMALL = -12,
-        RESULT_FORMAT_ERROR = -13,
-        RESULT_CONSTANT_ERROR = -14,
-        RESULT_NOT_SUPPORTED = -15,
-        RESULT_RESOURCE_LOOP_ERROR = -16,
-        RESULT_PENDING = -17,
-        RESULT_INVALID_FILE_EXTENSION = -18,
-        RESULT_VERSION_MISMATCH = -19,
-        RESULT_SIGNATURE_MISMATCH = -20,
-        RESULT_UNKNOWN_ERROR = -21,
+        RESULT_OK                        = 0,
+        RESULT_INVALID_DATA              = -1,
+        RESULT_DDF_ERROR                 = -2,
+        RESULT_RESOURCE_NOT_FOUND        = -3,
+        RESULT_MISSING_FILE_EXTENSION    = -4,
+        RESULT_ALREADY_REGISTERED        = -5,
+        RESULT_INVAL                     = -6,
+        RESULT_UNKNOWN_RESOURCE_TYPE     = -7,
+        RESULT_OUT_OF_MEMORY             = -8,
+        RESULT_IO_ERROR                  = -9,
+        RESULT_NOT_LOADED                = -10,
+        RESULT_OUT_OF_RESOURCES          = -11,
+        RESULT_STREAMBUFFER_TOO_SMALL    = -12,
+        RESULT_FORMAT_ERROR              = -13,
+        RESULT_CONSTANT_ERROR            = -14,
+        RESULT_NOT_SUPPORTED             = -15,
+        RESULT_RESOURCE_LOOP_ERROR       = -16,
+        RESULT_PENDING                   = -17,
+        RESULT_INVALID_FILE_EXTENSION    = -18,
+        RESULT_VERSION_MISMATCH          = -19,
+        RESULT_SIGNATURE_MISMATCH        = -20,
+        RESULT_UNKNOWN_ERROR             = -21,
     };
 
     /**
@@ -103,17 +104,17 @@ namespace dmResource
         /// Factory handle
         HFactory m_Factory;
         /// Resource context
-        void *m_Context;
+        void* m_Context;
         /// File name of the loaded file
-        const char *m_Filename;
+        const char* m_Filename;
         /// Buffer containing the loaded file
-        const void *m_Buffer;
+        const void* m_Buffer;
         /// Size of data buffer
         uint32_t m_BufferSize;
         /// Hinter info. Use this when calling PreloadHint
         HPreloadHintInfo m_HintInfo;
         /// Writable user data that will be passed on to ResourceCreate function
-        void **m_PreloadData;
+        void** m_PreloadData;
     };
 
     /*#
@@ -129,17 +130,18 @@ namespace dmResource
         /// Hash of resource name
         uint64_t m_NameHash;
         /// Resource pointer. Must be unique and not NULL.
-        void *m_Resource;
+        void*    m_Resource;
         /// Resource pointer to a previous version of the resource, iff it exists. Only used when recreating resources.
-        void *m_PrevResource;
+        void*    m_PrevResource;
         /// Resource size in memory. I.e. the payload of m_Resource
         uint32_t m_ResourceSize;
 
         // private members
         uint32_t m_ResourceSizeOnDisc;
-        void *m_ResourceType;
+        void*    m_ResourceType;
         uint32_t m_ReferenceCount;
     };
+
 
     /**
      * Resource preloading function. This may be called from a separate loading thread
@@ -150,7 +152,7 @@ namespace dmResource
      * @param param Resource preloading parameters
      * @return RESULT_OK on success
      */
-    typedef Result (*FResourcePreload)(const ResourcePreloadParams &params);
+    typedef Result (*FResourcePreload)(const ResourcePreloadParams& params);
 
     /**
      * Parameters to ResourceCreate callback.
@@ -160,15 +162,15 @@ namespace dmResource
         /// Factory handle
         HFactory m_Factory;
         /// Resource context
-        void *m_Context;
+        void* m_Context;
         /// File name of the loaded file
-        const char *m_Filename;
+        const char* m_Filename;
         /// Buffer containing the loaded file
-        const void *m_Buffer;
+        const void* m_Buffer;
         /// Size of the data buffer
         uint32_t m_BufferSize;
         /// Preloaded data from Preload phase
-        void *m_PreloadData;
+        void* m_PreloadData;
         /// Resource descriptor to fill in
         HResourceDescriptor m_Resource;
     };
@@ -178,7 +180,7 @@ namespace dmResource
      * @param params Resource creation arguments
      * @return CREATE_RESULT_OK on success
      */
-    typedef Result (*FResourceCreate)(const ResourceCreateParams &params);
+    typedef Result (*FResourceCreate)(const ResourceCreateParams& params);
 
     /**
      * Parameters to ResourcePostCreate callback.
@@ -188,9 +190,9 @@ namespace dmResource
         /// Factory handle
         HFactory m_Factory;
         /// Resource context
-        void *m_Context;
+        void* m_Context;
         /// Preloaded data from Preload phase
-        void *m_PreloadData;
+        void* m_PreloadData;
         /// Resource descriptor passed from create function
         HResourceDescriptor m_Resource;
     };
@@ -201,7 +203,7 @@ namespace dmResource
      * @return CREATE_RESULT_OK on success or CREATE_RESULT_PENDING when pending
      * @note returning CREATE_RESULT_PENDING will result in a repeated callback the following update.
      */
-    typedef Result (*FResourcePostCreate)(const ResourcePostCreateParams &params);
+    typedef Result (*FResourcePostCreate)(const ResourcePostCreateParams& params);
 
     /**
      * Parameters to ResourceDestroy callback.
@@ -211,7 +213,7 @@ namespace dmResource
         /// Factory handle
         HFactory m_Factory;
         /// Resource context
-        void *m_Context;
+        void* m_Context;
         /// Resource descriptor for resource to destroy
         HResourceDescriptor m_Resource;
     };
@@ -221,7 +223,7 @@ namespace dmResource
      * @param params Resource destruction arguments
      * @return CREATE_RESULT_OK on success
      */
-    typedef Result (*FResourceDestroy)(const ResourceDestroyParams &params);
+    typedef Result (*FResourceDestroy)(const ResourceDestroyParams& params);
 
     /**
      * Parameters to ResourceRecreate callback.
@@ -231,17 +233,17 @@ namespace dmResource
         /// Factory handle
         HFactory m_Factory;
         /// Resource context
-        void *m_Context;
+        void* m_Context;
         /// File name hash of the data
         uint64_t m_NameHash;
         /// File name of the loaded file
-        const char *m_Filename;
+        const char* m_Filename;
         /// Data buffer containing the loaded file
-        const void *m_Buffer;
+        const void* m_Buffer;
         /// Size of data buffer
         uint32_t m_BufferSize;
         /// Pointer holding a precreated message
-        const void *m_Message;
+        const void* m_Message;
         /// Resource descriptor to write into
         HResourceDescriptor m_Resource;
     };
@@ -251,7 +253,8 @@ namespace dmResource
      * @params params Parameters for resource creation
      * @return CREATE_RESULT_OK on success
      */
-    typedef Result (*FResourceRecreate)(const ResourceRecreateParams &params);
+    typedef Result (*FResourceRecreate)(const ResourceRecreateParams& params);
+
 
     /**
      * Register a resource type
@@ -266,13 +269,14 @@ namespace dmResource
      * @return RESULT_OK on success
      */
     Result RegisterType(HFactory factory,
-                        const char *extension,
-                        void *context,
-                        FResourcePreload preload_function,
-                        FResourceCreate create_function,
-                        FResourcePostCreate post_create_function,
-                        FResourceDestroy destroy_function,
-                        FResourceRecreate recreate_function);
+                               const char* extension,
+                               void* context,
+                               FResourcePreload preload_function,
+                               FResourceCreate create_function,
+                               FResourcePostCreate post_create_function,
+                               FResourceDestroy destroy_function,
+                               FResourceRecreate recreate_function);
+
 
     /**
      * Parameters to ResourceReloaded callback.
@@ -280,11 +284,11 @@ namespace dmResource
     struct ResourceReloadedParams
     {
         /// User data supplied when the callback was registered
-        void *m_UserData;
+        void* m_UserData;
         /// Descriptor of the reloaded resource
         HResourceDescriptor m_Resource;
         /// Name of the resource, same as provided to Get() when the resource was obtained
-        const char *m_Name;
+        const char* m_Name;
         /// Hashed name of the resource
         uint64_t m_NameHash;
     };
@@ -296,7 +300,7 @@ namespace dmResource
      * @see RegisterResourceReloadedCallback
      * @see Get
      */
-    typedef void (*ResourceReloadedCallback)(const ResourceReloadedParams &params);
+    typedef void (*ResourceReloadedCallback)(const ResourceReloadedParams& params);
 
     /**
      * Register a callback function that will be called with the specified user data when a resource has been reloaded.
@@ -307,7 +311,7 @@ namespace dmResource
      * @param user_data User data that will be supplied to the callback when it is called
      * @see RESOURCE_FACTORY_FLAGS_RELOAD_SUPPORT
      */
-    void RegisterResourceReloadedCallback(HFactory factory, ResourceReloadedCallback callback, void *user_data);
+    void RegisterResourceReloadedCallback(HFactory factory, ResourceReloadedCallback callback, void* user_data);
 
     /**
      * Remove a registered callback function, O(n).
@@ -316,13 +320,15 @@ namespace dmResource
      * @param user_data User data that was supplied when the callback was registered
      * @see RESOURCE_FACTORY_FLAGS_RELOAD_SUPPORT
      */
-    void UnregisterResourceReloadedCallback(HFactory factory, ResourceReloadedCallback callback, void *user_data);
+    void UnregisterResourceReloadedCallback(HFactory factory, ResourceReloadedCallback callback, void* user_data);
 
     dmhash_t GetNameHash(HResourceDescriptor desc);
-    void *GetResource(HResourceDescriptor desc);
-    void *GetPreviousResource(HResourceDescriptor desc);
-    void SetResource(HResourceDescriptor desc, void *resource);
-    void SetResourceSize(HResourceDescriptor desc, uint32_t size);
+    void*    GetResource(HResourceDescriptor desc);
+    void*    GetPreviousResource(HResourceDescriptor desc);
+    void     SetResource(HResourceDescriptor desc, void* resource);
+    void     SetResourceSize(HResourceDescriptor desc, uint32_t size);
+
+
 
     /**
      * Parameters to ResourceRecreate callback.
@@ -330,9 +336,9 @@ namespace dmResource
     struct ResourceTypeRegisterContext
     {
         HFactory m_Factory;
-        const char *m_Name; // the name/suffix of the resource type
+        const char* m_Name; // the name/suffix of the resource type
         uint64_t m_NameHash;
-        dmHashTable64<void *> *m_Contexts;
+        dmHashTable64<void*>* m_Contexts;
     };
 
     /**
@@ -340,118 +346,114 @@ namespace dmResource
      * @params params Parameters for resource creation
      * @return CREATE_RESULT_OK on success
      */
-    typedef Result (*FResourceTypeRegister)(ResourceTypeRegisterContext &ctx);
+    typedef Result (*FResourceTypeRegister)(ResourceTypeRegisterContext& ctx);
+
 
     /**
      * Resource type deregister function.
      * @params ctx Parameters for resource creation
      * @return CREATE_RESULT_OK on success
      */
-    typedef Result (*FResourceTypeDeregister)(ResourceTypeRegisterContext &ctx);
+    typedef Result (*FResourceTypeDeregister)(ResourceTypeRegisterContext& ctx);
+
 
     /**
-     * Resource type creator desc bytesize declaration. Internal
-     */
+    * Resource type creator desc bytesize declaration. Internal
+    */
     const size_t s_ResourceTypeCreatorDescBufferSize = 128;
 
     struct TypeCreatorDesc;
-    void RegisterTypeCreatorDesc(TypeCreatorDesc *desc, uint32_t size, const char *name, FResourceTypeRegister register_fn, FResourceTypeDeregister deregister_fn);
+    void RegisterTypeCreatorDesc(TypeCreatorDesc* desc, uint32_t size, const char *name, FResourceTypeRegister register_fn, FResourceTypeDeregister deregister_fn);
 
-// internal
-#define DM_RESOURCE_PASTE_SYMREG(x, y) x##y
-// internal
-#define DM_RESOURCE_PASTE_SYMREG2(x, y) DM_RESOURCE_PASTE_SYMREG(x, y)
+    // internal
+    #define DM_RESOURCE_PASTE_SYMREG(x, y) x ## y
+    // internal
+    #define DM_RESOURCE_PASTE_SYMREG2(x, y) DM_RESOURCE_PASTE_SYMREG(x, y)
 
-/**
- * Resource type declaration helper. Internal
- */
-#ifdef __GNUC__
-// Workaround for dead-stripping on OSX/iOS. The symbol "name" is explicitly exported. See wscript "exported_symbols"
-// Otherwise it's dead-stripped even though -no_dead_strip_inits_and_terms is passed to the linker
-// The bug only happens when the symbol is in a static library though
-#define DM_REGISTER_RESOURCE_TYPE(symbol, desc, desc_size, suffix, register_fn, deregister_fn)                                           \
-    extern "C" void __attribute__((constructor)) symbol()                                                                                \
-    {                                                                                                                                    \
-        dmResource::RegisterTypeCreatorDesc((struct dmResource::TypeCreatorDesc *)&desc, desc_size, suffix, register_fn, deregister_fn); \
-    }
-#else
-#define DM_REGISTER_RESOURCE_TYPE(symbol, desc, desc_size, suffix, register_fn, deregister_fn)                                           \
-    extern "C" void symbol()                                                                                                             \
-    {                                                                                                                                    \
-        dmResource::RegisterTypeCreatorDesc((struct dmResource::TypeCreatorDesc *)&desc, desc_size, suffix, register_fn, deregister_fn); \
-    }                                                                                                                                    \
-    int symbol##Wrapper(void)                                                                                                            \
-    {                                                                                                                                    \
-        symbol();                                                                                                                        \
-        return 0;                                                                                                                        \
-    }                                                                                                                                    \
-    __pragma(section(".CRT$XCU", read)) __declspec(allocate(".CRT$XCU")) int (*_Fp##symbol)(void) = symbol##Wrapper;
-#endif
+    /**
+     * Resource type declaration helper. Internal
+     */
+    #ifdef __GNUC__
+        // Workaround for dead-stripping on OSX/iOS. The symbol "name" is explicitly exported. See wscript "exported_symbols"
+        // Otherwise it's dead-stripped even though -no_dead_strip_inits_and_terms is passed to the linker
+        // The bug only happens when the symbol is in a static library though
+        #define DM_REGISTER_RESOURCE_TYPE(symbol, desc, desc_size, suffix, register_fn, deregister_fn) extern "C" void __attribute__((constructor)) symbol () { \
+            dmResource::RegisterTypeCreatorDesc((struct dmResource::TypeCreatorDesc*) &desc, desc_size, suffix, register_fn, deregister_fn); \
+        }
+    #else
+        #define DM_REGISTER_RESOURCE_TYPE(symbol, desc, desc_size, suffix, register_fn, deregister_fn) extern "C" void symbol () { \
+            dmResource::RegisterTypeCreatorDesc((struct dmResource::TypeCreatorDesc*) &desc, desc_size, suffix, register_fn, deregister_fn); \
+            }\
+            int symbol ## Wrapper(void) { symbol(); return 0; } \
+            __pragma(section(".CRT$XCU",read)) \
+            __declspec(allocate(".CRT$XCU")) int (* _Fp ## symbol)(void) = symbol ## Wrapper;
+    #endif
 
-/*# declare a new extension
- *
- * Declare and register new extension to the engine.
- * This macro is used to declare the extension callback functions used by the engine to communicate with the extension.
- *
- * @macro
- * @name DM_DECLARE_RESOURCE_TYPE
- * @param symbol [type:symbol] external extension symbol description (no quotes).
- * @param suffix [type:const char*] The file resource suffix, without a ".".
- * @param register_fn [type:function(dmResource::ResourceTypeRegisterContext& ctx)] type register function
- *
- * `ctx`
- * : [type:dmResource::ResourceTypeRegisterContext&] Reference to an `ResourceTypeRegisterContext` structure.
- *
- * @param deregister_fn [type:function(dmResource::ResourceTypeRegisterContext& ctx)] type deregister function. May be null.
- *
- * `ctx`
- * : [type:dmResource::ResourceTypeRegisterContext&] Reference to an `ResourceTypeRegisterContext` structure.
- *
- *
- * @examples
- *
- * Register a new type:
- *
- * ```cpp
- * static dmResource::Result ResourceTypeScriptCreate(...) {}
- * static dmResource::Result ResourceTypeScriptDestroy(...) {}
- * static dmResource::Result ResourceTypeScriptRecreate(...) {}
- *
- * struct BlobContext
- * {
- *     ...
- * };
- *
- * static dmResource::Result RegisterResourceTypeBlob(ResourceTypeRegisterContext& ctx)
- * {
- *     // The engine.cpp creates the contexts for our built in types.
- *     // Here we register a custom type
- *     BlobContext* context = new BlobContext;
- *     ctx.m_Contexts.Put(ctx.m_NameHash, (void*)context);
- *
- *     return dmResource::RegisterType(ctx.m_Factory,
- *                                        ctx.m_Name,
- *                                        context,
- *                                        0,
- *                                        ResourceTypeScriptCreate,
- *                                        0,
- *                                        ResourceTypeScriptDestroy,
- *                                        ResourceTypeScriptRecreate);
- * }
- *
- * static dmResource::Result DeregisterResourceTypeScript(ResourceTypeRegisterContext& ctx)
- * {
- *     BlobContext** context = (BlobContext**)ctx.m_Contexts.Get(ctx.m_NameHash);
- *     delete *context;
- * }
- *
- *
- * DM_DECLARE_RESOURCE_TYPE(ResourceTypeBlob, "blobc", RegisterResourceTypeBlob, DeregisterResourceTypeScript);
- * ```
- */
-#define DM_DECLARE_RESOURCE_TYPE(symbol, suffix, register_fn, deregister_fn)                                             \
-    uint8_t DM_ALIGNED(16) DM_RESOURCE_PASTE_SYMREG2(symbol, __LINE__)[dmResource::s_ResourceTypeCreatorDescBufferSize]; \
-    DM_REGISTER_RESOURCE_TYPE(symbol, DM_RESOURCE_PASTE_SYMREG2(symbol, __LINE__), sizeof(DM_RESOURCE_PASTE_SYMREG2(symbol, __LINE__)), suffix, register_fn, deregister_fn);
+    /*# declare a new extension
+     *
+     * Declare and register new extension to the engine.
+     * This macro is used to declare the extension callback functions used by the engine to communicate with the extension.
+     *
+     * @macro
+     * @name DM_DECLARE_RESOURCE_TYPE
+     * @param symbol [type:symbol] external extension symbol description (no quotes).
+     * @param suffix [type:const char*] The file resource suffix, without a ".".
+     * @param register_fn [type:function(dmResource::ResourceTypeRegisterContext& ctx)] type register function
+     *
+     * `ctx`
+     * : [type:dmResource::ResourceTypeRegisterContext&] Reference to an `ResourceTypeRegisterContext` structure.
+     *
+     * @param deregister_fn [type:function(dmResource::ResourceTypeRegisterContext& ctx)] type deregister function. May be null.
+     *
+     * `ctx`
+     * : [type:dmResource::ResourceTypeRegisterContext&] Reference to an `ResourceTypeRegisterContext` structure.
+     *
+     *
+     * @examples
+     *
+     * Register a new type:
+     *
+     * ```cpp
+     * static dmResource::Result ResourceTypeScriptCreate(...) {}
+     * static dmResource::Result ResourceTypeScriptDestroy(...) {}
+     * static dmResource::Result ResourceTypeScriptRecreate(...) {}
+     *
+     * struct BlobContext
+     * {
+     *     ...
+     * };
+     *
+     * static dmResource::Result RegisterResourceTypeBlob(ResourceTypeRegisterContext& ctx)
+     * {
+     *     // The engine.cpp creates the contexts for our built in types.
+     *     // Here we register a custom type
+     *     BlobContext* context = new BlobContext;
+     *     ctx.m_Contexts.Put(ctx.m_NameHash, (void*)context);
+     *
+     *     return dmResource::RegisterType(ctx.m_Factory,
+     *                                        ctx.m_Name,
+     *                                        context,
+     *                                        0,
+     *                                        ResourceTypeScriptCreate,
+     *                                        0,
+     *                                        ResourceTypeScriptDestroy,
+     *                                        ResourceTypeScriptRecreate);
+     * }
+     *
+     * static dmResource::Result DeregisterResourceTypeScript(ResourceTypeRegisterContext& ctx)
+     * {
+     *     BlobContext** context = (BlobContext**)ctx.m_Contexts.Get(ctx.m_NameHash);
+     *     delete *context;
+     * }
+     *
+     *
+     * DM_DECLARE_RESOURCE_TYPE(ResourceTypeBlob, "blobc", RegisterResourceTypeBlob, DeregisterResourceTypeScript);
+     * ```
+     */
+    #define DM_DECLARE_RESOURCE_TYPE(symbol, suffix, register_fn, deregister_fn) \
+        uint8_t DM_ALIGNED(16) DM_RESOURCE_PASTE_SYMREG2(symbol, __LINE__)[dmResource::s_ResourceTypeCreatorDescBufferSize]; \
+        DM_REGISTER_RESOURCE_TYPE(symbol, DM_RESOURCE_PASTE_SYMREG2(symbol, __LINE__), sizeof(DM_RESOURCE_PASTE_SYMREG2(symbol, __LINE__)), suffix, register_fn, deregister_fn);
+
 
     /*#
      * Get a resource from factory
@@ -461,7 +463,8 @@ namespace dmResource
      * @param resource [type: void**] Created resource
      * @return result [type: dmResource::Result]  RESULT_OK on success
      */
-    Result Get(HFactory factory, const char *name, void **resource);
+    Result Get(HFactory factory, const char* name, void** resource);
+
 
     /*#
      * Release resource
@@ -469,7 +472,7 @@ namespace dmResource
      * @param factory [type: dmResource::HFactory] Factory handle
      * @param resource [type: void*] Resource pointer
      */
-    void Release(HFactory factory, void *resource);
+    void Release(HFactory factory, void* resource);
 
     /*#
      * Hint the preloader what to load before Create is called on the resource.
@@ -488,16 +491,8 @@ namespace dmResource
      * @param resource Resource
      * @param hash Returned hash
      * @return RESULT_OK on success
-     */
-    Result GetPath(HFactory factory, const void *resource, uint64_t *hash);
-
-    struct TypeCreatorDesc
-    {
-        const char *m_Name;
-        FResourceTypeRegister m_RegisterFn;
-        FResourceTypeRegister m_DeregisterFn;
-        TypeCreatorDesc *m_Next;
-    };
+    */
+    Result GetPath(HFactory factory, const void* resource, uint64_t* hash);
 
 }
 

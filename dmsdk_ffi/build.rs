@@ -64,6 +64,7 @@ fn main() {
         // The input header we would like to generate
         // bindings for.
         .header("dmsdk/sdk.h")
+        .header("dmsdk/resource/resource.h")
         //.blocklist_file("graphics_native.h")
         //.blocklist_file("dmsdk/graphics/glfw/glfw.h")
         .blocklist_item("std")

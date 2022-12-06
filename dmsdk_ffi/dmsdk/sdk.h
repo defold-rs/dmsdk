@@ -28,7 +28,6 @@
 #include <dmsdk/dlib/configfile.h>
 #include <dmsdk/dlib/buffer.h>
 #include <dmsdk/dlib/log.h>
-#include <dmsdk/dlib/json.h>
 #include <dmsdk/dlib/array.h>
 #include <dmsdk/dlib/mutex.h>
 #include <dmsdk/dlib/dstrings.h>
@@ -36,10 +35,5 @@
 #include <dmsdk/graphics/graphics_native.h>
 #include <dmsdk/graphics/graphics.h>
 #include <dmsdk/vectormath/cpp/vectormath_aos.h>
-
-//#include <dmsdk/extension.h>
-#include <dmsdk/resource/resource.h>
-//#include <dmsdk/gameobject_private.h>
-//#include <dmsdk/resource/resource_private.h>
 
 #endif // DMSDK_SDK_H
