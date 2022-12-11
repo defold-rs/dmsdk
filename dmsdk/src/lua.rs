@@ -100,7 +100,7 @@ pub unsafe fn check_bytes(l: State, i: i32) -> Vec<u8> {
     let ptr = dmsdk_ffi::luaL_checklstring(l, i, &mut length);
 
     // There's probably a better way to read X bytes from a ptr
-    let mut vec = Vec::new();
+    let mut vec = Vec::with_capacity(length as usize);
     for i in 0..length {
         vec.push(*ptr.add(i as usize) as u8);
     }
@@ -135,7 +135,7 @@ pub unsafe fn pop(l: State, n: i32) {
     dmsdk_ffi::lua_settop(l, -n - 1);
 }
 
-/// Taken from the [`mond` crate](https://github.com/blt/mond/blob/5028d86b4be0fdbba0a02e6e7802d7a64dfcda40/src/wrapper/state.rs#L1584)
+/// Taken from the [`mond` crate](https://github.com/blt/mond/blob/5028d86b4be0fdbba0a02e6e7802d7a64dfcda40/src/wrapper/state.rs#L1584).
 ///
 /// # Safety
 ///
@@ -164,12 +164,49 @@ pub unsafe fn register(l: State, lib_name: &str, functions: &[(&str, Function)])
     dmsdk_ffi::luaL_register(l, lib_name.as_ptr(), lua_fns.as_ptr());
 }
 
-/// # Safety
-///
-/// This function is safe as long as `l` points to a valid Lua state.
-pub unsafe fn error(l: State) -> ! {
-    unsafe {
-        dmsdk_ffi::lua_error(l);
-    }
-    panic!("lua_error failed to return!")
+#[doc(hidden)]
+pub unsafe fn __error(l: State, str: &str) -> ! {
+    let s = CString::new(str).unwrap();
+    dmsdk_ffi::luaL_error(l, s.as_ptr());
+    panic!("luaL_error failed to return!")
 }
+
+#[doc(hidden)]
+pub unsafe fn __push_fstring(l: State, str: &str) {
+    let s = CString::new(str).unwrap();
+    dmsdk_ffi::lua_pushfstring(l, s.as_ptr());
+}
+
+/// Raises an error with the given message.
+///
+/// The file name and line number will be added to the message, if available. This macro stops execution of the current function (returns `!`).
+///
+/// # Examples
+/// ```
+/// use dmsdk::*;
+///
+/// fn my_lua_fn(l: lua::State) -> i32 {
+///     let number = 5;
+///     if number < 11 {
+///         lua::error!("Expected a number greater than 10, got {number}")
+///     }
+///
+///     dmlog::warning!("This line shouldn't get printed!");
+/// }
+/// ```
+#[macro_export]
+macro_rules! __internal_lua_error {
+    ($l:ident, $($arg:tt)*) => {
+        lua::__error($l, &format!($($arg)*));
+    };
+}
+
+#[macro_export]
+macro_rules! __internal_push_fstring {
+    ($l:ident, $($arg:tt)*) => {
+        lua::__push_fstring($l, &format!($($arg)*));
+    };
+}
+
+#[doc(inline)]
+pub use crate::{__internal_lua_error as error, __internal_push_fstring as push_fstring};
