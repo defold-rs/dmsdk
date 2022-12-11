@@ -2,6 +2,8 @@
 
 use std::ffi::CString;
 
+/// Log message severity.
+#[allow(missing_docs)]
 pub enum Severity {
     Debug,
     UserDebug,
@@ -30,6 +32,7 @@ impl From<Severity> for i32 {
     }
 }
 
+/// Logs a message with the given severity.
 pub fn log(severity: Severity, domain: &str, message: &str) {
     let message = CString::new(message).unwrap();
     let domain = CString::new(domain).unwrap();

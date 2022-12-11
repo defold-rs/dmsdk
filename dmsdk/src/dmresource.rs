@@ -1,3 +1,6 @@
+//! Custom resource registering module.
+#![allow(missing_docs)]
+
 use crate::ffi::dmResource;
 use std::ffi::CString;
 
@@ -62,6 +65,9 @@ pub fn _register_type_creator_desc(
     }
 }
 
+/// # Safety
+///
+/// This functions is safe as long as `extension` and `context` are valid pointers.
 #[allow(clippy::too_many_arguments)]
 pub unsafe fn register_type(
     factory: Factory,

@@ -1,3 +1,9 @@
+#![warn(missing_docs)]
+
+//! # dmsdk
+//!
+//! Rust-friendly wrappers for interacting with the [Defold](https://defold.com) extension SDK.
+
 pub mod dmconfigfile;
 pub mod dmengine;
 pub mod dmextension;

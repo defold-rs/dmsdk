@@ -4,26 +4,39 @@ use crate::*;
 use dmsdk_ffi::dmExtension;
 use std::ffi::CString;
 
+#[doc(hidden)]
 pub use ctor::ctor;
 
+#[doc(hidden)]
 pub type RawParams = *mut dmExtension::Params;
+#[doc(hidden)]
 pub type RawEvent = *const dmExtension::Event;
+#[doc(hidden)]
 pub type RawAppParams = *mut dmExtension::AppParams;
 type RawAppCallback = unsafe extern "C" fn(RawAppParams) -> i32;
 type RawCallback = unsafe extern "C" fn(RawParams) -> i32;
 type RawEventCallback = unsafe extern "C" fn(RawParams, RawEvent);
+#[doc(hidden)]
 pub type Desc = [u8; DESC_BUFFER_SIZE];
+/// Callback function called during the application lifecycle.
 pub type AppCallback = fn(AppParams) -> Result;
+/// Callback function called during the extension lifecycle.
 pub type Callback = fn(Params) -> Result;
+/// Callback for handling various events.
 pub type EventCallback = fn(Params, Event);
 
+#[doc(hidden)]
 pub const DESC_BUFFER_SIZE: usize = 128;
 
+/// Result of a callback function.
+#[allow(missing_docs)]
 pub enum Result {
     Ok,
     InitError,
 }
 
+/// Possible events that an [`EventCallback`] can respond to.
+#[allow(missing_docs)]
 pub enum Event {
     ActivateApp,
     DeactivateApp,
@@ -42,9 +55,8 @@ impl From<Result> for i32 {
 }
 
 impl Event {
-    #[allow(clippy::missing_safety_doc)]
-    pub unsafe fn from(event: *const dmExtension::Event) -> Self {
-        let id = (*event).m_Event;
+    /// Returns the corresponding [`Event`] for the given event ID.
+    pub fn from(id: u32) -> Self {
         match id {
             0 => Self::ActivateApp,
             1 => Self::DeactivateApp,
@@ -55,22 +67,30 @@ impl Event {
     }
 }
 
+/// Params passed to an [`AppCallback`].
 pub struct AppParams {
-    pub config_file: dmconfigfile::ConfigFile,
+    /// Project config file.
+    pub config: dmconfigfile::ConfigFile,
+    #[doc(hidden)]
     pub ptr: RawAppParams,
 }
 
+/// Params passed to a [`Callback`] or [`EventCallback`].
 pub struct Params {
-    pub config_file: dmconfigfile::ConfigFile,
+    /// Project config file.
+    pub config: dmconfigfile::ConfigFile,
+    /// Lua state.
     pub l: lua::State,
+    #[doc(hidden)]
     pub ptr: RawParams,
 }
 
 impl AppParams {
     #[allow(clippy::missing_safety_doc)]
+    #[doc(hidden)]
     pub unsafe fn from(params: RawAppParams) -> Self {
         Self {
-            config_file: (*params).m_ConfigFile,
+            config: (*params).m_ConfigFile,
             ptr: params,
         }
     }
@@ -78,9 +98,10 @@ impl AppParams {
 
 impl Params {
     #[allow(clippy::missing_safety_doc)]
+    #[doc(hidden)]
     pub unsafe fn from(params: RawParams) -> Self {
         Self {
-            config_file: (*params).m_ConfigFile,
+            config: (*params).m_ConfigFile,
             l: (*params).m_L,
             ptr: params,
         }
@@ -127,7 +148,7 @@ macro_rules! __declare_event_callback {
             match func {
                 Some(func) => func(
                     dmextension::Params::from(params),
-                    dmextension::Event::from(event),
+                    dmextension::Event::from((*event).m_Event),
                 ),
                 None => {}
             }
@@ -188,6 +209,7 @@ macro_rules! declare_extension {
 }
 
 #[allow(clippy::too_many_arguments)]
+#[doc(hidden)]
 pub fn __register(
     name: &str,
     desc: &mut Desc,

@@ -1,5 +1,9 @@
+//! Vector math helpers.
+
 use crate::ffi::Vectormath;
 
+/// Point in 3D space.
+#[allow(missing_docs)]
 #[derive(Debug)]
 pub struct Point3 {
     pub x: f32,
@@ -7,6 +11,8 @@ pub struct Point3 {
     pub z: f32,
 }
 
+/// Vector in 3D space.
+#[allow(missing_docs)]
 #[derive(Debug)]
 pub struct Vector3 {
     pub x: f32,
@@ -14,6 +20,8 @@ pub struct Vector3 {
     pub z: f32,
 }
 
+/// Quaternion.
+#[allow(missing_docs)]
 #[derive(Debug)]
 pub struct Quat {
     pub x: f32,

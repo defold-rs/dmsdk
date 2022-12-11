@@ -1,10 +1,15 @@
+//! Wrappers for the Lua C API.
+
 use std::{
     ffi::{CStr, CString},
     mem::size_of,
 };
 
+/// Mutable pointer to a [`lua_State`](crate::ffi::lua_State).
 pub type State = *mut dmsdk_ffi::lua_State;
+/// Alias for a Lua-compatible function.
 pub type Function = extern "C" fn(l: State) -> i32;
+/// Collection of Lua-compatible functions and their names.
 pub type Reg = &'static [(&'static str, Function)];
 
 /// Creates a new constant [`Reg`] with the name provided, to be used with [`register()`].
@@ -48,6 +53,8 @@ macro_rules! declare_functions {
     };
 }
 
+/// Pushes any Rust object onto the stack as userdata.
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
@@ -61,6 +68,8 @@ pub unsafe fn push_userdata<T>(l: State, userdata: T) {
     ptr.write(userdata);
 }
 
+/// Converts the data at `i` on the stack into an instance of type `T`.
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state and there is a valid instance of `T` at index `i` of the stack.
@@ -69,6 +78,8 @@ pub unsafe fn to_userdata<T>(l: State, i: i32) -> T {
     ptr.read()
 }
 
+/// Pushes an [`isize`] onto the stack.
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
@@ -76,6 +87,8 @@ pub unsafe fn push_integer(l: State, n: isize) {
     dmsdk_ffi::lua_pushinteger(l, n);
 }
 
+/// Pushes a string slice onto the stack.
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
@@ -84,14 +97,21 @@ pub unsafe fn push_string(l: State, s: &str) {
     dmsdk_ffi::lua_pushstring(l, s.as_ptr());
 }
 
+/// Checks if there is a Lua string at `i` and converts it into a [`String`].
+///
+/// This function uses [`CStr::from_ptr()`] and [`String::from_utf8_lossy()`], so the string will be cut short at nulls and any non-UTF8 sequences will be replaced with [`std::char::REPLACEMENT_CHARACTER`].
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
 pub unsafe fn check_string(l: State, i: i32) -> String {
     let ptr = dmsdk_ffi::luaL_checklstring(l, i, std::ptr::null_mut());
-    CStr::from_ptr(ptr).to_string_lossy().into_owned()
+    let cstr = CStr::from_ptr(ptr);
+    String::from_utf8_lossy(cstr.to_bytes()).into_owned()
 }
 
+/// Checks if there is a Lua string at `i` and converts it into a [`Vec<u8>`].
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
@@ -107,14 +127,28 @@ pub unsafe fn check_bytes(l: State, i: i32) -> Vec<u8> {
     vec
 }
 
+/// Checks if there is a Lua number at `i` and converts it into an [`isize`].
+///
+/// The number will be rounded down to the nearest whole number.
+///
+/// # Safety
+///
+/// This function is safe as long as `l` points to a valid Lua state.
 pub unsafe fn check_int(l: State, i: i32) -> isize {
     dmsdk_ffi::luaL_checkinteger(l, i)
 }
 
+/// Checks if there is a Lua number at `i` and converts it into an [`f64`].
+///
+/// # Safety
+///
+/// This function is safe as long as `l` points to a valid Lua state.
 pub unsafe fn check_float(l: State, i: i32) -> f64 {
     dmsdk_ffi::luaL_checknumber(l, i)
 }
 
+/// Returns the number of elements in the stack.
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
@@ -122,6 +156,8 @@ pub unsafe fn get_top(l: State) -> i32 {
     dmsdk_ffi::lua_gettop(l)
 }
 
+/// Creates a new empty table and pushes it onto the stack.
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
@@ -129,13 +165,19 @@ pub unsafe fn new_table(l: State) {
     dmsdk_ffi::lua_createtable(l, 0, 0);
 }
 
+/// Sets the `n`th element of the table at `i` to the value on top of the stack.
+///
+/// The value at the top of the stack will be popped, and no metamethods will be invoked.
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
-pub unsafe fn raw_set_i(l: State, index: i32, key: i32) {
-    dmsdk_ffi::lua_rawseti(l, index, key);
+pub unsafe fn raw_set_i(l: State, i: i32, n: i32) {
+    dmsdk_ffi::lua_rawseti(l, i, n);
 }
 
+/// Pops `n` elements from the stack.
+///
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
@@ -211,6 +253,21 @@ macro_rules! __internal_lua_error {
     };
 }
 
+/// Pushes a formatted string onto the stack.
+///
+/// # Examples
+/// ```
+/// use dmsdk::*;
+///
+/// fn greeting(l: lua::State) -> i32 {
+///     unsafe {
+///         let name = lua::check_string(l, 1);
+///         lua::push_fstring!(l, "Hello, {name}!");
+///     }
+///
+///     0
+/// }
+/// ```
 #[macro_export]
 macro_rules! __internal_push_fstring {
     ($l:ident, $($arg:tt)*) => {
