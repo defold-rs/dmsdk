@@ -144,7 +144,7 @@ macro_rules! __declare_event_callback {
 /// fn app_init(params: dmextension::AppParams) -> dmextension::Result { dmextension::Result::Ok }
 /// fn app_final(params: dmextension::AppParams) -> dmextension::Result { dmextension::Result::Ok }
 /// fn ext_init(params: dmextension::Params) -> dmextension::Result {
-///     dmsdk::info!("Registered extension MY_EXTENSION");
+///     dmlog::info!("Registered extension MY_EXTENSION");
 ///     
 ///     dmextension::Result::Ok
 /// }

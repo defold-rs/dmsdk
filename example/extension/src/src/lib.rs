@@ -49,13 +49,22 @@ fn b64_encode(l: lua::State) -> i32 {
     1
 }
 
+fn error(l: lua::State) -> i32 {
+    unsafe {
+        lua::error!(l, "An unexpected error occured!");
+    }
+
+    0
+}
+
 declare_functions!(
     TEST,
     lua_function,
     reverse,
     create_userdata,
     read_userdata,
-    b64_encode
+    b64_encode,
+    error
 );
 
 // LIFECYCLE FUNCTIONS //

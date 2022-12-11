@@ -13,11 +13,11 @@ pub struct Config {}
 ///
 /// # Examples
 /// ```
-/// use dmsdk::dmconfigfile;
+/// use dmsdk::*;
 ///
 /// fn app_init(config: dmconfigfile::ConfigFile) {
 ///     let title = dmconfigfile::get_string(config, "project.title", "Untitled");
-///     println!("Project title is: {title}");
+///     dmlog::info!("Project title is: {title}");
 /// }
 /// ```
 ///
@@ -38,11 +38,11 @@ pub unsafe fn get_string(config: ConfigFile, key: &str, default_value: &str) -> 
 ///
 /// # Examples
 /// ```
-/// use dmsdk::dmconfigfile;
+/// use dmsdk::*;
 ///
 /// fn app_init(config: dmconfigfile::ConfigFile) {
 ///     let display_width = dmconfigfile::get_int(config, "display.width", 960);
-///     println!("Window width is: {display_width}");
+///     dmlog::info!("Window width is: {display_width}");
 /// }
 /// ```
 ///
@@ -60,11 +60,11 @@ pub unsafe fn get_int(config: ConfigFile, key: &str, default_value: i32) -> i32 
 ///
 /// # Examples
 /// ```
-/// use dmsdk::dmconfigfile;
+/// use dmsdk::*;
 ///
 /// fn app_init(config: dmconfigfile::ConfigFile) {
 ///     let gravity = dmconfigfile::get_float(config, "physics.gravity_y", -9.8);
-///     println!("Gravity is: {gravity}");
+///     dmlog::info!("Gravity is: {gravity}");
 /// }
 /// ```
 ///
