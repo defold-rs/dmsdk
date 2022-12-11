@@ -107,6 +107,14 @@ pub unsafe fn check_bytes(l: State, i: i32) -> Vec<u8> {
     vec
 }
 
+pub unsafe fn check_int(l: State, i: i32) -> isize {
+    dmsdk_ffi::luaL_checkinteger(l, i)
+}
+
+pub unsafe fn check_float(l: State, i: i32) -> f64 {
+    dmsdk_ffi::luaL_checknumber(l, i)
+}
+
 /// # Safety
 ///
 /// This function is safe as long as `l` points to a valid Lua state.
@@ -188,10 +196,12 @@ pub unsafe fn __push_fstring(l: State, str: &str) {
 /// fn my_lua_fn(l: lua::State) -> i32 {
 ///     let number = 5;
 ///     if number < 11 {
-///         lua::error!("Expected a number greater than 10, got {number}")
+///         lua::error!(l, "Expected a number greater than 10, got {number}")
 ///     }
 ///
 ///     dmlog::warning!("This line shouldn't get printed!");
+///
+///     0
 /// }
 /// ```
 #[macro_export]

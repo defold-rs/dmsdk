@@ -49,12 +49,26 @@ fn b64_encode(l: lua::State) -> i32 {
     1
 }
 
+fn check_types(l: lua::State) -> i32 {
+    unsafe {
+        let int = lua::check_int(l, 1);
+        let float = lua::check_float(l, 2);
+        let string = lua::check_string(l, 3);
+        let bytes = lua::check_bytes(l, 4);
+
+        dmlog::info!(
+            "int: {int}, float: {float}, string: {string}, bytes: {:?}",
+            bytes
+        );
+    }
+
+    0
+}
+
 fn error(l: lua::State) -> i32 {
     unsafe {
         lua::error!(l, "An unexpected error occured!");
     }
-
-    0
 }
 
 declare_functions!(
@@ -64,6 +78,7 @@ declare_functions!(
     create_userdata,
     read_userdata,
     b64_encode,
+    check_types,
     error
 );
 

@@ -4,7 +4,10 @@ function init(self)
 	print(rust.b64_encode("Base64 encoded by Rust"))
 
 	local userdata = rust.create_userdata()
+	print(userdata)
 	rust.read_userdata(userdata)
+
+	rust.check_types(500, 3.141592, "utf-8 string: à,á,â,ã,ä,å", "\x12\x34\x56")
 
 	rust.error()
 end
