@@ -5,4 +5,6 @@ function init(self)
 
 	local userdata = rust.create_userdata()
 	rust.read_userdata(userdata)
+
+	rust.error()
 end
