@@ -1,7 +1,7 @@
 //! Configuration file access functions. The configuration file is the compiled version of game.project.
 
 use dmsdk_ffi::dmConfigFile;
-use std::ffi::{CStr, CString};
+use std::ffi::{c_char, CStr, CString};
 
 /// Pointer to a project config file.
 pub type ConfigFile = dmConfigFile::HConfig;
@@ -86,4 +86,124 @@ pub unsafe fn get_int(config: ConfigFile, key: &str, default_value: i32) -> i32 
 pub unsafe fn get_float(config: ConfigFile, key: &str, default_value: f32) -> f32 {
     let key = CString::new(key).unwrap();
     dmConfigFile::GetFloat(config, key.as_ptr(), default_value)
+}
+
+pub type PluginLifecycle = fn(ConfigFile);
+pub type PluginGetter<T> = fn(ConfigFile, &str, T) -> Option<T>;
+#[doc(hidden)]
+pub type RawPluginLifecycle = unsafe extern "C" fn(ConfigFile);
+#[doc(hidden)]
+pub type RawPluginGetter<T> = unsafe extern "C" fn(ConfigFile, *const c_char, T, *mut T) -> bool;
+#[doc(hidden)]
+pub type Desc = [u8; DESC_BUFFER_SIZE as usize];
+
+#[doc(hidden)]
+pub const DESC_BUFFER_SIZE: u32 = 64;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! declare_plugin_lifecycle {
+    ($symbol:ident, $option:expr) => {
+        #[no_mangle]
+        unsafe extern "C" fn $symbol(config: dmconfigfile::ConfigFile) {
+            let func: Option<dmconfigfile::PluginLifecycle> = $option;
+            if let Some(func) = func {
+                func(config);
+            }
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! declare_plugin_getter {
+    ($symbol:ident, $option:expr, $type:ident) => {
+        #[no_mangle]
+        unsafe extern "C" fn $symbol(
+            config: dmconfigfile::ConfigFile,
+            key: *const core::ffi::c_char,
+            default_value: $type,
+            out: *mut $type,
+        ) -> bool {
+            let key = core::ffi::CStr::from_ptr(key)
+                .to_str()
+                .expect("Invalid UTF-8 sequence in key!");
+            let func: Option<dmconfigfile::PluginGetter<$type>> = $option;
+            match func {
+                Some(func) => func(config, key, default_value).is_some(),
+                None => false,
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! declare_configfile_extension {
+    ($symbol:ident, $create:expr, $destroy:expr, $get_string:expr, $get_int:expr, $get_float:expr) => {
+        paste! {
+            static mut [<$symbol _PLUGIN_DESC>]: dmconfigfile::Desc = [0u8; dmconfigfile::DESC_BUFFER_SIZE as usize];
+
+            declare_plugin_lifecycle!([<$symbol _plugin_create>], $create);
+            declare_plugin_lifecycle!([<$symbol _plugin_destroy>], $destroy);
+            // declare_plugin_getter!([<$symbol _plugin_get_string>], $get_string, *const core::ffi::c_char);
+            declare_plugin_getter!([<$symbol _plugin_get_int>], $get_int, i32);
+            declare_plugin_getter!([<$symbol _plugin_get_float>], $get_float, f32);
+
+            #[no_mangle]
+            unsafe extern "C" fn [<$symbol _plugin_get_string>](
+                config: dmconfigfile::ConfigFile,
+                key: *const core::ffi::c_char,
+                default_value: *const core::ffi::c_char,
+                out: *mut *const core::ffi::c_char,
+            ) -> bool {
+                let key = core::ffi::CStr::from_ptr(key)
+                    .to_str()
+                    .expect("Invalid UTF-8 sequence in key!");
+                let func: Option<dmconfigfile::PluginGetter<*const core::ffi::c_char>> = $get_string;
+                match func {
+                    Some(func) => func(config, key, default_value).is_some(),
+                    None => false,
+                }
+            }
+
+            #[no_mangle]
+            #[dmextension::ctor]
+            unsafe fn $symbol() {
+                dmconfigfile::register(
+                    &mut [<$symbol _PLUGIN_DESC>],
+                    stringify!($symbol),
+                    [<$symbol _plugin_create>],
+                    [<$symbol _plugin_destroy>],
+                    [<$symbol _plugin_get_string>],
+                    [<$symbol _plugin_get_int>],
+                    [<$symbol _plugin_get_float>],
+                );
+            }
+        }
+    };
+}
+
+#[doc(hidden)]
+pub fn register(
+    desc: &mut Desc,
+    name: &str,
+    create: RawPluginLifecycle,
+    destroy: RawPluginLifecycle,
+    get_string: RawPluginGetter<*const c_char>,
+    get_int: RawPluginGetter<i32>,
+    get_float: RawPluginGetter<f32>,
+) {
+    let name = CString::new(name).unwrap();
+    unsafe {
+        dmConfigFile::Register(
+            desc.as_mut_ptr() as *mut dmConfigFile::PluginDesc,
+            DESC_BUFFER_SIZE,
+            name.as_ptr(),
+            Some(create),
+            Some(destroy),
+            Some(get_string),
+            Some(get_int),
+            Some(get_float),
+        );
+    }
 }

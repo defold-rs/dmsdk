@@ -135,3 +135,8 @@ declare_extension!(
     None,
     None
 );
+
+// CONFIG FILE EXTENSION //
+fn create(config: dmconfigfile::ConfigFile) {}
+
+declare_configfile_extension!(RUST_CONFIG, Some(create), None, None, None, None);
