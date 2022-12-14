@@ -67,7 +67,7 @@ fn check_types(l: lua::State) -> i32 {
 
 fn error(l: lua::State) -> i32 {
     unsafe {
-        lua::error!(l, "An unexpected error occured!");
+        lua::error!(l, "An expected error occured!");
     }
 }
 
@@ -145,13 +145,13 @@ fn destroy(_config: dmconfigfile::ConfigFile) {
     dmlog::info!("destroy()");
 }
 
-fn get_string(
+fn get_string<'a>(
     _config: dmconfigfile::ConfigFile,
     key: &str,
-    default_value: &str,
-) -> Option<&'static str> {
+    default_value: &'a str,
+) -> Option<&'a str> {
     dmlog::info!("get_string({key}, {default_value})");
-    Some("Output")
+    None
 }
 
 declare_configfile_extension!(

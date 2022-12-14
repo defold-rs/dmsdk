@@ -125,11 +125,11 @@ macro_rules! declare_plugin_getter {
             default_value: $type,
             out: *mut $type,
         ) -> bool {
-            let key = core::ffi::CStr::from_ptr(key)
-                .to_str()
-                .expect("Invalid UTF-8 sequence in key!");
             let func: Option<dmconfigfile::PluginGetter<$type>> = $option;
             if let Some(func) = func {
+                let key = core::ffi::CStr::from_ptr(key)
+                    .to_str()
+                    .expect("Invalid UTF-8 sequence in key!");
                 if let Some(value) = func(config, key, default_value) {
                     out.write(value);
                     true
@@ -161,14 +161,14 @@ macro_rules! declare_configfile_extension {
                 default_value: *const core::ffi::c_char,
                 out: *mut *const core::ffi::c_char,
             ) -> bool {
-                let key = core::ffi::CStr::from_ptr(key)
-                    .to_str()
-                    .expect("Invalid UTF-8 sequence in key!");
-                let default_value = core::ffi::CStr::from_ptr(default_value)
-                    .to_str()
-                    .expect("Invalid UTF-8 sequence in default value!");
                 let func: Option<dmconfigfile::PluginGetter<&str>> = $get_string;
                 if let Some(func) = func {
+                    let key = core::ffi::CStr::from_ptr(key)
+                        .to_str()
+                        .expect("Invalid UTF-8 sequence in key!");
+                    let default_value = core::ffi::CStr::from_ptr(default_value)
+                        .to_str()
+                        .expect("Invalid UTF-8 sequence in default value!");
                     if let Some(value) = func(config, key, default_value) {
                         let cstr = std::ffi::CString::new(value).expect("Unexpected null in return value!");
                         out.write(cstr.as_ptr());
