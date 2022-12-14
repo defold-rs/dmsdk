@@ -170,14 +170,19 @@ macro_rules! declare_configfile_extension {
                         return false;
                     }
 
-                    let default_value = core::ffi::CStr::from_ptr(default_value)
-                        .to_str();
-                    if default_value.is_err() {
-                        dmlog::error!("Invalid UTF-8 sequence in default_value!");
-                        return false;
-                    }
+                    let default_value = if default_value.is_null() {
+                        ""
+                    } else {
+                        match core::ffi::CStr::from_ptr(default_value).to_str() {
+                            Ok(str) => str,
+                            Err(_) => {
+                                dmlog::error!("Invalid UTF-8 sequence in default value!");
+                                return false;
+                            }
+                        }
+                    };
 
-                    if let Some(value) = func(config, key.unwrap(), default_value.unwrap()) {
+                    if let Some(value) = func(config, key.unwrap(), default_value) {
                         let cstr = std::ffi::CString::new(value).expect("Unexpected null in return value!");
                         out.write(cstr.as_ptr());
                         true
