@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#dmsdk = { git = "https://github.com/JustAPotota/defold-rs" }
-dmsdk = { path = "../../../dmsdk" }
-base64 = "0.13.0"
+dmsdk = { git = "https://github.com/JustAPotota/defold-rs" }
+#dmsdk = { path = "../../../dmsdk" }
+base64 = "0.20.0"
 
 [workspace] # This is just here so it doesn't conflict with the `dmsdk` workspace
