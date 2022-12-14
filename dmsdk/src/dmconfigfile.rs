@@ -164,12 +164,20 @@ macro_rules! declare_configfile_extension {
                 let func: Option<dmconfigfile::PluginGetter<&str>> = $get_string;
                 if let Some(func) = func {
                     let key = core::ffi::CStr::from_ptr(key)
-                        .to_str()
-                        .expect("Invalid UTF-8 sequence in key!");
+                        .to_str();
+                    if key.is_err() {
+                        dmlog::error!("Invalid UTF-8 sequence in key!");
+                        return false;
+                    }
+
                     let default_value = core::ffi::CStr::from_ptr(default_value)
-                        .to_str()
-                        .expect("Invalid UTF-8 sequence in default value!");
-                    if let Some(value) = func(config, key, default_value) {
+                        .to_str();
+                    if default_value.is_err() {
+                        dmlog::error!("Invalid UTF-8 sequence in default_value!");
+                        return false;
+                    }
+
+                    if let Some(value) = func(config, key.unwrap(), default_value.unwrap()) {
                         let cstr = std::ffi::CString::new(value).expect("Unexpected null in return value!");
                         out.write(cstr.as_ptr());
                         true
