@@ -137,6 +137,28 @@ declare_extension!(
 );
 
 // CONFIG FILE EXTENSION //
-fn create(config: dmconfigfile::ConfigFile) {}
+fn create(_config: dmconfigfile::ConfigFile) {
+    dmlog::info!("create()");
+}
 
-declare_configfile_extension!(RUST_CONFIG, Some(create), None, None, None, None);
+fn destroy(_config: dmconfigfile::ConfigFile) {
+    dmlog::info!("destroy()");
+}
+
+fn get_string(
+    _config: dmconfigfile::ConfigFile,
+    key: &str,
+    default_value: &str,
+) -> Option<&'static str> {
+    dmlog::info!("get_string({key}, {default_value})");
+    Some("Output")
+}
+
+declare_configfile_extension!(
+    RUST_CONFIG,
+    Some(create),
+    Some(destroy),
+    Some(get_string),
+    None,
+    None
+);

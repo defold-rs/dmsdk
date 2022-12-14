@@ -129,9 +129,15 @@ macro_rules! declare_plugin_getter {
                 .to_str()
                 .expect("Invalid UTF-8 sequence in key!");
             let func: Option<dmconfigfile::PluginGetter<$type>> = $option;
-            match func {
-                Some(func) => func(config, key, default_value).is_some(),
-                None => false,
+            if let Some(func) = func {
+                if let Some(value) = func(config, key, default_value) {
+                    out.write(value);
+                    true
+                } else {
+                    false
+                }
+            } else {
+                false
             }
         }
     };
@@ -145,7 +151,6 @@ macro_rules! declare_configfile_extension {
 
             declare_plugin_lifecycle!([<$symbol _plugin_create>], $create);
             declare_plugin_lifecycle!([<$symbol _plugin_destroy>], $destroy);
-            // declare_plugin_getter!([<$symbol _plugin_get_string>], $get_string, *const core::ffi::c_char);
             declare_plugin_getter!([<$symbol _plugin_get_int>], $get_int, i32);
             declare_plugin_getter!([<$symbol _plugin_get_float>], $get_float, f32);
 
@@ -159,10 +164,20 @@ macro_rules! declare_configfile_extension {
                 let key = core::ffi::CStr::from_ptr(key)
                     .to_str()
                     .expect("Invalid UTF-8 sequence in key!");
-                let func: Option<dmconfigfile::PluginGetter<*const core::ffi::c_char>> = $get_string;
-                match func {
-                    Some(func) => func(config, key, default_value).is_some(),
-                    None => false,
+                let default_value = core::ffi::CStr::from_ptr(default_value)
+                    .to_str()
+                    .expect("Invalid UTF-8 sequence in default value!");
+                let func: Option<dmconfigfile::PluginGetter<&str>> = $get_string;
+                if let Some(func) = func {
+                    if let Some(value) = func(config, key, default_value) {
+                        let cstr = std::ffi::CString::new(value).expect("Unexpected null in return value!");
+                        out.write(cstr.as_ptr());
+                        true
+                    } else{
+                        false
+                    }
+                } else {
+                    false
                 }
             }
 
