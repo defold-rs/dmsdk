@@ -147,6 +147,54 @@ macro_rules! declare_plugin_getter {
     };
 }
 
+#[doc(hidden)]
+#[macro_export]
+macro_rules! declare_plugin_string_getter {
+    ($symbol:ident, $option:expr) => {
+        #[no_mangle]
+        unsafe extern "C" fn $symbol(
+            config: dmconfigfile::ConfigFile,
+            key: *const core::ffi::c_char,
+            default_value: *const core::ffi::c_char,
+            out: *mut *const core::ffi::c_char,
+        ) -> bool {
+            let func: Option<dmconfigfile::StringGetter> = $option;
+            if let Some(func) = func {
+                let key = core::ffi::CStr::from_ptr(key).to_str();
+                if key.is_err() {
+                    dmlog::error!("Invalid UTF-8 sequence in key!");
+                    return false;
+                }
+
+                let default_value = if default_value.is_null() {
+                    ""
+                } else {
+                    match core::ffi::CStr::from_ptr(default_value).to_str() {
+                        Ok(str) => str,
+                        Err(_) => {
+                            dmlog::error!("Invalid UTF-8 sequence in default value!");
+                            return false;
+                        }
+                    }
+                };
+
+                if let Some(value) = func(config, key.unwrap(), default_value) {
+                    let cstr =
+                        std::ffi::CString::new(value).expect("Unexpected null in return value!");
+
+                    let boxed_str = Box::new(cstr);
+                    out.write(Box::leak(boxed_str).as_ptr());
+                    true
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        }
+    };
+}
+
 /// Equivalent to `DM_DECLARE_CONFIGFILE_EXTENSION` in regular C++ extensions.
 ///
 /// Each `get` function is called whenever a config value is requested from Lua or C++.
@@ -202,50 +250,9 @@ macro_rules! declare_configfile_extension {
 
             declare_plugin_lifecycle!([<$symbol _plugin_create>], $create);
             declare_plugin_lifecycle!([<$symbol _plugin_destroy>], $destroy);
+            declare_plugin_string_getter!([<$symbol _plugin_get_string>], $get_string);
             declare_plugin_getter!([<$symbol _plugin_get_int>], $get_int, i32);
             declare_plugin_getter!([<$symbol _plugin_get_float>], $get_float, f32);
-
-            #[no_mangle]
-            unsafe extern "C" fn [<$symbol _plugin_get_string>](
-                config: dmconfigfile::ConfigFile,
-                key: *const core::ffi::c_char,
-                default_value: *const core::ffi::c_char,
-                out: *mut *const core::ffi::c_char,
-            ) -> bool {
-                let func: Option<dmconfigfile::StringGetter> = $get_string;
-                if let Some(func) = func {
-                    let key = core::ffi::CStr::from_ptr(key)
-                        .to_str();
-                    if key.is_err() {
-                        dmlog::error!("Invalid UTF-8 sequence in key!");
-                        return false;
-                    }
-
-                    let default_value = if default_value.is_null() {
-                        ""
-                    } else {
-                        match core::ffi::CStr::from_ptr(default_value).to_str() {
-                            Ok(str) => str,
-                            Err(_) => {
-                                dmlog::error!("Invalid UTF-8 sequence in default value!");
-                                return false;
-                            }
-                        }
-                    };
-
-                    if let Some(value) = func(config, key.unwrap(), default_value) {
-                        let cstr = std::ffi::CString::new(value).expect("Unexpected null in return value!");
-
-                        let boxed_str = Box::new(cstr);
-                        out.write(Box::leak(boxed_str).as_ptr());
-                        true
-                    } else{
-                        false
-                    }
-                } else {
-                    false
-                }
-            }
 
             #[no_mangle]
             #[dmextension::ctor]
