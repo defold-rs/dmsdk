@@ -99,7 +99,8 @@ pub unsafe fn push_string(l: State, s: &str) {
 
 /// Checks if there is a Lua string at `i` and converts it into a [`String`].
 ///
-/// This function uses [`CStr::from_ptr()`] and [`String::from_utf8_lossy()`], so the string will be cut short at nulls and any non-UTF8 sequences will be replaced with [`std::char::REPLACEMENT_CHARACTER`].
+/// This function uses [`CStr::from_ptr()`] and [`String::from_utf8_lossy()`],
+/// so the string will be cut short at nulls and any non-UTF8 sequences will be replaced with [`std::char::REPLACEMENT_CHARACTER`].
 ///
 /// # Safety
 ///
@@ -229,7 +230,8 @@ pub unsafe fn __push_fstring(l: State, str: &str) {
 
 /// Raises an error with the given message.
 ///
-/// The file name and line number will be added to the message, if available. This macro stops execution of the current function (returns `!`).
+/// The file name and line number will be added to the message, if available.
+/// This macro stops execution of the current function (returns `!`).
 ///
 /// # Examples
 /// ```
@@ -276,4 +278,6 @@ macro_rules! __internal_push_fstring {
 }
 
 #[doc(inline)]
-pub use crate::{__internal_lua_error as error, __internal_push_fstring as push_fstring};
+pub use crate::{
+    __internal_lua_error as error, __internal_push_fstring as push_fstring, declare_functions,
+};

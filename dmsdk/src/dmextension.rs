@@ -236,3 +236,6 @@ pub fn __register(
         );
     }
 }
+
+#[doc(inline)]
+pub use crate::declare_extension;

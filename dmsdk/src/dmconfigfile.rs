@@ -88,8 +88,12 @@ pub unsafe fn get_float(config: ConfigFile, key: &str, default_value: f32) -> f3
     dmConfigFile::GetFloat(config, key.as_ptr(), default_value)
 }
 
+/// Callback function called during the config plugin lifecycle.
 pub type PluginLifecycle = fn(ConfigFile);
+/// Function used to provide config values.
 pub type PluginGetter<T> = fn(ConfigFile, &str, T) -> Option<T>;
+#[doc(hidden)]
+pub type StringGetter = fn(ConfigFile, &str, &str) -> Option<String>;
 #[doc(hidden)]
 pub type RawPluginLifecycle = unsafe extern "C" fn(ConfigFile);
 #[doc(hidden)]
@@ -143,6 +147,53 @@ macro_rules! declare_plugin_getter {
     };
 }
 
+/// Equivalent to `DM_DECLARE_CONFIGFILE_EXTENSION` in regular C++ extensions.
+///
+/// Each `get` function is called whenever a config value is requested from Lua or C++.
+/// Return [`Some`] to override a value with your own, or [`None`] to let another function handle it.
+///
+/// # Examples
+/// ```
+/// # const LOG_DOMAIN: &str = "DOCTEST";
+/// use dmsdk::*;
+///
+/// fn plugin_create(config: dmconfigfile::ConfigFile) {
+///     dmlog::info!("Config plugin created");
+/// }
+///
+/// fn plugin_destroy(config: dmconfigfile::ConfigFile) {
+///     dmlog::info!("Config plugin destroyed");
+/// }
+///
+/// fn get_string(config: dmconfigfile::ConfigFile, key: &str, default_value: &str) -> Option<String> {
+///     if key == "project.title" {
+///         Some("My project now!".to_owned())
+///     } else {
+///         None
+///     }
+/// }
+///
+/// fn get_int(config: dmconfigfile::ConfigFile, key: &str, default_value: i32) -> Option<i32> {
+///     if key == "custom_section.my_value" {
+///         Some(123)
+///     } else {
+///         None
+///     }
+/// }
+///
+/// fn get_float(config: dmconfigfile::ConfigFile, key: &str, default_value: f32) -> Option<f32> {
+///     Some(default_value * 10.0)
+/// }
+///
+/// declare_configfile_extension!(
+///     MY_CONFIG_PLUGIN,
+///     Some(plugin_create),
+///     Some(plugin_destroy),
+///     Some(get_string),
+///     Some(get_int),
+///     Some(get_float)
+/// );
+/// ```
 #[macro_export]
 macro_rules! declare_configfile_extension {
     ($symbol:ident, $create:expr, $destroy:expr, $get_string:expr, $get_int:expr, $get_float:expr) => {
@@ -161,7 +212,7 @@ macro_rules! declare_configfile_extension {
                 default_value: *const core::ffi::c_char,
                 out: *mut *const core::ffi::c_char,
             ) -> bool {
-                let func: Option<dmconfigfile::PluginGetter<&str>> = $get_string;
+                let func: Option<dmconfigfile::StringGetter> = $get_string;
                 if let Some(func) = func {
                     let key = core::ffi::CStr::from_ptr(key)
                         .to_str();
@@ -235,3 +286,6 @@ pub fn register(
         );
     }
 }
+
+#[doc(inline)]
+pub use crate::declare_configfile_extension;
