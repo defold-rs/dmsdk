@@ -2,6 +2,12 @@
 name = "dmsdk"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "Rust-friendly wrappers around the Defold dmSDK"
+homepage = "https://forum.defold.com/t/writing-native-extensions-in-rust/71980?u=justapotota"
+repository = "https://github.com/JustAPotoa/defold-rs"
+readme = "README.md"
+categories = ["game-development", "api-bindings"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

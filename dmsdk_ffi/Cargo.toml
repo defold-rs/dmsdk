@@ -2,6 +2,12 @@
 name = "dmsdk_ffi"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "Auto-generated bindings to Defold's dmSDK"
+homepage = "https://forum.defold.com/t/writing-native-extensions-in-rust/71980?u=justapotota"
+repository = "https://github.com/JustAPotoa/defold-rs"
+readme = "README.md"
+categories = ["game-development", "external-ffi-bindings"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,5 +15,5 @@ edition = "2021"
 libc = "0.2.126"
 
 [build-dependencies]
-bindgen = "0.60.1"
+bindgen = "0.63.0"
 glob = "0.3.0"
