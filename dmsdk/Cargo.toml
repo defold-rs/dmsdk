@@ -12,7 +12,7 @@ categories = ["game-development", "api-bindings"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dmsdk_ffi = { path = "../dmsdk_ffi" }
+dmsdk_ffi = { path = "../dmsdk_ffi", version = "0.1.0" }
 libc = "0.2.126"
 paste = "1.0.7"
 ctor = "0.1.23"
