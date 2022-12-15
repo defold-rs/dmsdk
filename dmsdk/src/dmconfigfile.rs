@@ -235,7 +235,9 @@ macro_rules! declare_configfile_extension {
 
                     if let Some(value) = func(config, key.unwrap(), default_value) {
                         let cstr = std::ffi::CString::new(value).expect("Unexpected null in return value!");
-                        out.write(cstr.as_ptr());
+
+                        let boxed_str = Box::new(cstr);
+                        out.write(Box::leak(boxed_str).as_ptr());
                         true
                     } else{
                         false
