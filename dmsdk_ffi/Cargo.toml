@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT"
 description = "Auto-generated bindings to Defold's dmSDK"
 homepage = "https://forum.defold.com/t/writing-native-extensions-in-rust/71980?u=justapotota"
-repository = "https://github.com/JustAPotoa/defold-rs"
+repository = "https://github.com/JustAPotota/defold-rs"
 readme = "README.md"
 categories = ["game-development", "external-ffi-bindings"]
 
