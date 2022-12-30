@@ -1,4 +1,4 @@
-//! Logging functions. **Use these instead of the macros listed on the main page!**
+//! Logging macros.
 
 use std::ffi::CString;
 
