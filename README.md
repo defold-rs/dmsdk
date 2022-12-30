@@ -1,7 +1,7 @@
 ![defold-rs](assets/defold-rs.svg)
 
 # defold-rs
-![Crates.io](https://img.shields.io/crates/v/dmsdk)
+[![Crates.io](https://img.shields.io/crates/v/dmsdk)](https://crates.io/crates/dmsdk)
 
 Tools for creating [Defold](https://defold.com/) native extensions in Rust.
 
