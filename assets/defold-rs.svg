@@ -78,8 +78,7 @@
      id="logo"
      transform="translate(53, 53)">
     <g
-       id="gear"
-       mask="url(#holes)">
+       id="gear">
       <circle
          r="43"
          fill="none"
@@ -272,36 +271,6 @@
          transform="rotate(288)"
          id="use88" />
     </g>
-    <mask
-       id="holes">
-      <rect
-         x="-60"
-         y="-60"
-         width="120"
-         height="120"
-         fill="white"
-         id="rect79" />
-      <circle
-         id="hoe"
-         cy="-40"
-         r="3" />
-      <use
-         xlink:href="#hole"
-         transform="rotate(72)"
-         id="use82" />
-      <use
-         xlink:href="#hole"
-         transform="rotate(144)"
-         id="use84" />
-      <use
-         xlink:href="#hole"
-         transform="rotate(216)"
-         id="use86" />
-      <use
-         xlink:href="#hole"
-         transform="rotate(288)"
-         id="use88" />
-    </mask>
   </g>
   <g
      id="g1857"
