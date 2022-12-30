@@ -23,5 +23,5 @@ Follow the instructions in the build server's README to get it built and running
 # So what's `defold-rs` then?
 It's two main pieces that come together to let you write native extensions in Rust:
 
-- [`defold-rs`](https://github.com/JustAPotoa/defold-rs) - This repository is home to the [`dmsdk`](https://crates.io/crates/dmsdk) and [`dmsdk_ffi`](https://crates.io/crates/dmsdk_ffi) crates. In short, `dmsdk_ffi` contains auto-generated bindings to the dmSDK and `dmsdk` wraps those unsafe bindings into a nice Rust-y package. See the crates' READMEs for more details.
+- [`defold-rs`](https://github.com/JustAPotoa/defold-rs) - This repository is home to the [`dmsdk`](https://crates.io/crates/dmsdk) and [`dmsdk_ffi`](https://crates.io/crates/dmsdk_ffi) crates. In short, `dmsdk_ffi` contains auto-generated bindings to the dmSDK and `dmsdk` wraps those unsafe bindings into a nice Rust-y package.
 - [`defold-rs-extender`](https://github.com/JustAPotoa/defold-rs-extender) - A fork of Defold's extension build server with added Rust support. You'll need to run one of these yourself in order to use this project.
