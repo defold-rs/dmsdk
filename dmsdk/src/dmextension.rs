@@ -102,7 +102,7 @@ impl Params {
     pub unsafe fn from(params: RawParams) -> Self {
         Self {
             config: (*params).m_ConfigFile,
-            l: (*params).m_L,
+            l: lua::State::new((*params).m_L),
             ptr: params,
         }
     }

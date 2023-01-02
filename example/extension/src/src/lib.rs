@@ -6,29 +6,23 @@ use dmsdk::*;
 fn lua_function(l: lua::State) -> i32 {
     dmlog::info!("Hello from Rust!");
 
-    unsafe {
-        lua::push_integer(l, 123);
-    }
+    lua::push_integer(l, 123);
 
     1
 }
 
 fn reverse(l: lua::State) -> i32 {
-    let to_reverse = unsafe { lua::check_string(l, 1) };
+    let to_reverse = lua::check_string(l, 1);
     let reversed: String = to_reverse.chars().rev().collect();
 
-    unsafe {
-        lua::push_string(l, &reversed);
-    }
+    lua::push_string(l, &reversed);
 
     1
 }
 
 fn create_userdata(l: lua::State) -> i32 {
     let userdata = vec![1, 2, 3];
-    unsafe {
-        lua::push_userdata(l, userdata);
-    }
+    lua::push_userdata(l, userdata);
 
     1
 }
@@ -41,34 +35,28 @@ fn read_userdata(l: lua::State) -> i32 {
 }
 
 fn b64_encode(l: lua::State) -> i32 {
-    unsafe {
-        let plaintext = lua::check_string(l, 1);
-        lua::push_string(l, &base64::encode(plaintext));
-    };
+    let plaintext = lua::check_string(l, 1);
+    lua::push_string(l, &base64::encode(plaintext));
 
     1
 }
 
 fn check_types(l: lua::State) -> i32 {
-    unsafe {
-        let int = lua::check_int(l, 1);
-        let float = lua::check_float(l, 2);
-        let string = lua::check_string(l, 3);
-        let bytes = lua::check_bytes(l, 4);
+    let int = lua::check_int(l, 1);
+    let float = lua::check_float(l, 2);
+    let string = lua::check_string(l, 3);
+    let bytes = lua::check_bytes(l, 4);
 
-        dmlog::info!(
-            "int: {int}, float: {float}, string: \"{string}\", bytes: {:?}",
-            bytes
-        );
-    }
+    dmlog::info!(
+        "int: {int}, float: {float}, string: \"{string}\", bytes: {:?}",
+        bytes
+    );
 
     0
 }
 
 fn error(l: lua::State) -> i32 {
-    unsafe {
-        lua::error!(l, "An expected error occured!");
-    }
+    lua::error!(l, "An expected error occured!");
 }
 
 declare_functions!(
