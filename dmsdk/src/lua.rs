@@ -39,13 +39,13 @@ impl State {
 /// use dmsdk::*;
 ///
 /// fn hello_world(l: lua::State) -> i32 {
-///     unsafe { lua::push_string(l, "Hello, world!"); }
+///     lua::push_string(l, "Hello, world!");
 ///
 ///     1
 /// }
 ///
 /// fn the_answer(l: lua::State) -> i32 {
-///     unsafe { lua::push_integer(l, 42); }
+///     lua::push_integer(l, 42);
 ///
 ///     1
 /// }
@@ -252,10 +252,8 @@ macro_rules! __internal_lua_error {
 /// use dmsdk::*;
 ///
 /// fn greeting(l: lua::State) -> i32 {
-///     unsafe {
-///         let name = lua::check_string(l, 1);
-///         lua::push_fstring!(l, "Hello, {name}!");
-///     }
+///     let name = lua::check_string(l, 1);
+///     lua::push_fstring!(l, "Hello, {name}!");
 ///
 ///     0
 /// }
