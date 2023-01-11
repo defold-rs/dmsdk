@@ -199,7 +199,7 @@ pub struct Gamepad {
 impl Gamepad {
     /// Creates a new [`Gamepad`] from the given pointer.
     ///
-    /// You probably want [`Context::get_touch_device()`] instead.
+    /// You probably want [`Context::get_gamepad()`] instead.
     pub fn new(ptr: *mut dmHID::Gamepad) -> Option<Self> {
         if ptr.is_null() {
             None
