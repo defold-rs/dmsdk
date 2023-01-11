@@ -29,6 +29,13 @@ impl Context {
         Mouse::new(mouse)
     }
 
+    /// Returns the touch device at the given index if it exists.
+    pub fn get_touch_device(&self, index: u8) -> Option<TouchDevice> {
+        let touch_device = unsafe { dmHID::GetTouchDevice(self.ptr, index) };
+
+        TouchDevice::new(touch_device)
+    }
+
     /// Adds the given character as text input.
     pub fn add_keyboard_char(&self, char: i32) {
         unsafe { dmHID::AddKeyboardChar(self.ptr, char) }
@@ -56,21 +63,6 @@ impl Keyboard {
     pub fn set_key(&self, key: Key, value: bool) {
         unsafe { dmHID::SetKey(self.ptr, key.into(), value) }
     }
-}
-
-#[allow(missing_docs)]
-pub enum MouseButton {
-    Left,
-    Middle,
-    Right,
-    M1,
-    M2,
-    M3,
-    M4,
-    M5,
-    M6,
-    M7,
-    M8,
 }
 
 /// Wrapper around a [`dmHID::Mouse`] pointer.
@@ -167,6 +159,59 @@ impl From<dmHID::MousePacket> for MousePacket {
             raw_packet,
         }
     }
+}
+
+/// Wrapper around a [`dmHID::TouchDevice`] pointer.
+pub struct TouchDevice {
+    ptr: *mut dmHID::TouchDevice,
+}
+
+impl TouchDevice {
+    /// Creates a new [`TouchDevice`] from the given pointer.
+    ///
+    /// You probably want [`Context::get_touch_device()`] instead.
+    pub fn new(ptr: *mut dmHID::TouchDevice) -> Option<Self> {
+        if ptr.is_null() {
+            None
+        } else {
+            Some(Self { ptr })
+        }
+    }
+
+    /// Adds a touch event.
+    pub fn add_touch(&self, x: i32, y: i32, id: u32, phase: Phase) {
+        unsafe { dmHID::AddTouch(self.ptr, x, y, id, phase.into()) }
+    }
+}
+
+#[allow(missing_docs)]
+pub enum Phase {
+    Began,
+    Moved,
+    Stationary,
+    Ended,
+    Cancelled,
+}
+
+impl From<Phase> for u32 {
+    fn from(phase: Phase) -> Self {
+        phase as u32
+    }
+}
+
+#[allow(missing_docs)]
+pub enum MouseButton {
+    Left,
+    Middle,
+    Right,
+    M1,
+    M2,
+    M3,
+    M4,
+    M5,
+    M6,
+    M7,
+    M8,
 }
 
 impl From<MouseButton> for u32 {
