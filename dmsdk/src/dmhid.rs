@@ -10,7 +10,7 @@ pub struct Context {
 impl Context {
     /// Creates a new [`Context`] from the given pointer.
     ///
-    /// Use [`dmengine::get_hid_context()`](crate::dmengine::get_hid_context()) instead.
+    /// You probably want [`dmengine::get_hid_context()`](crate::dmengine::get_hid_context()) instead.
     pub fn new(ptr: *mut dmHID::Context) -> Self {
         Self { ptr }
     }
@@ -42,6 +42,8 @@ pub struct Keyboard {
 
 impl Keyboard {
     /// Creates a new [`Keyboard`] from the given pointer.
+    ///
+    /// You probably want [`Context::get_keyboard()`] instead.
     pub fn new(ptr: *mut dmHID::Keyboard) -> Option<Self> {
         if ptr.is_null() {
             None
@@ -78,6 +80,8 @@ pub struct Mouse {
 
 impl Mouse {
     /// Creates a new [`Mouse`] from the given pointer.
+    ///
+    /// You probably want [`Context::get_mouse()`] instead.
     pub fn new(ptr: *mut dmHID::Mouse) -> Option<Self> {
         if ptr.is_null() {
             None
@@ -192,7 +196,7 @@ pub enum Key {
     DoubleQuote,
     Hash,
     Dollar,
-    Percent, // Not in C++ dmHid for some reason
+    Percent, // Not in C++ dmHID for some reason
     Ampersand,
     Apostrophe,
     ParenLeft,
@@ -276,7 +280,7 @@ pub enum Key {
     F10,
     F11,
     F12,
-    /// ...F13-F25...
+    // ...F13-F25...
     Up = 256 + 27,
     Down,
     Left,
