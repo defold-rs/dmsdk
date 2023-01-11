@@ -36,6 +36,13 @@ impl Context {
         TouchDevice::new(touch_device)
     }
 
+    /// Returns the gamepad at the given index if it exists.
+    pub fn get_gamepad(&self, index: u8) -> Option<Gamepad> {
+        let gamepad = unsafe { dmHID::GetGamepad(self.ptr, index) };
+
+        Gamepad::new(gamepad)
+    }
+
     /// Adds the given character as text input.
     pub fn add_keyboard_char(&self, char: i32) {
         unsafe { dmHID::AddKeyboardChar(self.ptr, char) }
@@ -181,6 +188,34 @@ impl TouchDevice {
     /// Adds a touch event.
     pub fn add_touch(&self, x: i32, y: i32, id: u32, phase: Phase) {
         unsafe { dmHID::AddTouch(self.ptr, x, y, id, phase.into()) }
+    }
+}
+
+/// Wrapper around a [`dmHID::Gamepad`] pointer.
+pub struct Gamepad {
+    ptr: *mut dmHID::Gamepad,
+}
+
+impl Gamepad {
+    /// Creates a new [`Gamepad`] from the given pointer.
+    ///
+    /// You probably want [`Context::get_touch_device()`] instead.
+    pub fn new(ptr: *mut dmHID::Gamepad) -> Option<Self> {
+        if ptr.is_null() {
+            None
+        } else {
+            Some(Self { ptr })
+        }
+    }
+
+    /// Sets whether or not the given button is pressed.
+    pub fn set_button(&self, button: u32, pressed: bool) {
+        unsafe { dmHID::SetGamepadButton(self.ptr, button, pressed) }
+    }
+
+    /// Sets the value of the given gamepad axis.
+    pub fn set_axis(&self, axis: u32, value: f32) {
+        unsafe { dmHID::SetGamepadAxis(self.ptr, axis, value) }
     }
 }
 
