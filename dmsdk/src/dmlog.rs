@@ -1,5 +1,7 @@
 //! Logging macros.
 
+#![allow(clippy::crate_in_macro_def)]
+
 use std::ffi::CString;
 
 /// Log message severity.
@@ -56,7 +58,7 @@ pub fn log(severity: Severity, domain: &str, message: &str) {
 #[macro_export]
 macro_rules! __internal_debug {
     ($($arg:tt)*) => {
-        dmlog::log(dmlog::Severity::Debug, LOG_DOMAIN, &format!($($arg)*));
+        dmlog::log(dmlog::Severity::Debug, crate::LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
@@ -74,7 +76,7 @@ macro_rules! __internal_debug {
 #[macro_export]
 macro_rules! __internal_user_debug {
     ($($arg:tt)*) => {
-        dmlog::log(dmlog::Severity::UserDebug, LOG_DOMAIN, &format!($($arg)*));
+        dmlog::log(dmlog::Severity::UserDebug, crate::LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
@@ -92,7 +94,7 @@ macro_rules! __internal_user_debug {
 #[macro_export]
 macro_rules! __internal_info {
     ($($arg:tt)*) => {
-        dmlog::log(dmlog::Severity::Info, LOG_DOMAIN, &format!($($arg)*));
+        dmlog::log(dmlog::Severity::Info, crate::LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
@@ -110,7 +112,7 @@ macro_rules! __internal_info {
 #[macro_export]
 macro_rules! __internal_warning {
     ($($arg:tt)*) => {
-        dmlog::log(dmlog::Severity::Warning, LOG_DOMAIN, &format!($($arg)*));
+        dmlog::log(dmlog::Severity::Warning, crate::LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
@@ -128,7 +130,7 @@ macro_rules! __internal_warning {
 #[macro_export]
 macro_rules! __internal_error {
     ($($arg:tt)*) => {
-        dmlog::log(dmlog::Severity::Error, LOG_DOMAIN, &format!($($arg)*));
+        dmlog::log(dmlog::Severity::Error, crate::LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
@@ -146,7 +148,7 @@ macro_rules! __internal_error {
 #[macro_export]
 macro_rules! __internal_fatal {
     ($($arg:tt)*) => {
-        dmlog::log(dmlog::Severity::Fatal, LOG_DOMAIN, &format!($($arg)*));
+        dmlog::log(dmlog::Severity::Fatal, crate::LOG_DOMAIN, &format!($($arg)*));
     };
 }
 
