@@ -68,6 +68,7 @@ impl Event {
 }
 
 /// Params passed to an [`AppCallback`].
+#[derive(Clone, Copy)]
 pub struct AppParams {
     /// Project config file.
     pub config: dmconfigfile::ConfigFile,
@@ -76,6 +77,7 @@ pub struct AppParams {
 }
 
 /// Params passed to a [`Callback`] or [`EventCallback`].
+#[derive(Clone, Copy)]
 pub struct Params {
     /// Project config file.
     pub config: dmconfigfile::ConfigFile,
