@@ -1,5 +1,3 @@
-#![allow(clippy::missing_safety_doc, clippy::not_unsafe_ptr_arg_deref)]
-
 use dmsdk::*;
 
 // LUA FUNCTIONS //
@@ -90,7 +88,7 @@ fn app_init(params: dmextension::AppParams) -> dmextension::Result {
     dmextension::Result::Ok
 }
 
-unsafe fn lua_init(l: lua::State) {
+fn lua_init(l: lua::State) {
     let top = lua::get_top(l);
 
     lua::register(l, "rust", TEST);
@@ -101,9 +99,7 @@ unsafe fn lua_init(l: lua::State) {
 }
 
 fn ext_init(params: dmextension::Params) -> dmextension::Result {
-    unsafe {
-        lua_init(params.l);
-    }
+    lua_init(params.l);
 
     dmlog::info!("Registered Rust extension");
 
@@ -124,30 +120,13 @@ declare_extension!(
     None
 );
 
-// CONFIG FILE EXTENSION //
-fn create(_config: dmconfigfile::ConfigFile) {
-    dmlog::info!("create()");
-}
-
-fn destroy(_config: dmconfigfile::ConfigFile) {
-    dmlog::info!("destroy()");
-}
-
-fn get_string(_config: dmconfigfile::ConfigFile, key: &str, default_value: &str) -> Option<String> {
-    dmlog::info!("get_string({key}, \"{default_value}\")");
-
-    if key == "my_section.my_value" {
-        Some("It works!".to_owned())
-    } else {
-        None
-    }
-}
+mod config_extension;
 
 declare_configfile_extension!(
     RUST_CONFIG,
-    Some(create),
-    Some(destroy),
-    Some(get_string),
+    Some(config_extension::create),
+    Some(config_extension::destroy),
+    Some(config_extension::get_string),
     None,
     None
 );
