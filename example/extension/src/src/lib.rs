@@ -44,9 +44,10 @@ fn check_types(l: lua::State) -> i32 {
     let float = lua::check_float(l, 2);
     let string = lua::check_string(l, 3);
     let bytes = lua::check_bytes(l, 4);
+    let boolean = lua::to_bool(l, 5);
 
     dmlog::info!(
-        "int: {int}, float: {float}, string: \"{string}\", bytes: {:?}",
+        "int: {int}, float: {float}, string: \"{string}\", bytes: {:?}, bool: {boolean}",
         bytes
     );
 

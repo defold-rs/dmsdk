@@ -146,6 +146,11 @@ pub fn check_float(l: State, i: i32) -> f64 {
     unsafe { dmsdk_ffi::luaL_checknumber(l.ptr, i) }
 }
 
+/// Returns `true` if the value at `i` is not `false` or `nil`.
+pub fn to_bool(l: State, i: i32) -> bool {
+    unsafe { dmsdk_ffi::lua_toboolean(l.ptr, i) > 0 }
+}
+
 /// Returns the number of elements in the stack.
 pub fn get_top(l: State) -> i32 {
     unsafe { dmsdk_ffi::lua_gettop(l.ptr) }
