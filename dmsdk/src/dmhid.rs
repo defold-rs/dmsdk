@@ -234,6 +234,12 @@ impl From<Phase> for u32 {
     }
 }
 
+impl From<Phase> for i32 {
+    fn from(phase: Phase) -> Self {
+        phase as i32
+    }
+}
+
 #[allow(missing_docs)]
 pub enum MouseButton {
     Left,
@@ -264,6 +270,13 @@ impl From<MouseButton> for u32 {
             MouseButton::M7 => 6,
             MouseButton::M8 => 7,
         }
+    }
+}
+
+impl From<MouseButton> for i32 {
+    fn from(button: MouseButton) -> Self {
+        let x: u32 = button.into();
+        x as i32
     }
 }
 
@@ -414,5 +427,11 @@ pub enum Key {
 impl From<Key> for u32 {
     fn from(key: Key) -> Self {
         key as u32
+    }
+}
+
+impl From<Key> for i32 {
+    fn from(key: Key) -> Self {
+        key as i32
     }
 }
