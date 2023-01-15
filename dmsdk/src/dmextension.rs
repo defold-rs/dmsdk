@@ -54,9 +54,8 @@ impl From<Result> for i32 {
     }
 }
 
-impl Event {
-    /// Returns the corresponding [`Event`] for the given event ID.
-    pub fn from(id: u32) -> Self {
+impl From<u32> for Event {
+    fn from(id: u32) -> Self {
         match id {
             0 => Self::ActivateApp,
             1 => Self::DeactivateApp,
@@ -64,6 +63,12 @@ impl Event {
             3 => Self::DeiconifyApp,
             _ => Self::Unknown,
         }
+    }
+}
+
+impl From<i32> for Event {
+    fn from(id: i32) -> Self {
+        (id as u32).into()
     }
 }
 
@@ -148,10 +153,7 @@ macro_rules! __declare_event_callback {
         unsafe extern "C" fn $symbol(params: dmextension::RawParams, event: dmextension::RawEvent) {
             let func: Option<dmextension::EventCallback> = $option;
             match func {
-                Some(func) => func(
-                    dmextension::Params::from(params),
-                    dmextension::Event::from((*event).m_Event),
-                ),
+                Some(func) => func(dmextension::Params::from(params), (*event).m_Event.into()),
                 None => {}
             }
         }
