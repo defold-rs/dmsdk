@@ -1,5 +1,7 @@
 //! Functions for manipulating game objects.
 
+use std::ffi::CString;
+
 use crate::{dmvmath, ffi::dmGameObject};
 
 /// Game object register.
@@ -91,4 +93,54 @@ pub unsafe fn get_scale(instance: Instance) -> dmvmath::Vector3 {
 /// This function is safe as long as `instance` points to a valid game object.
 pub unsafe fn set_position(instance: Instance, position: dmvmath::Point3) {
     dmGameObject::SetPosition(instance, position.into())
+}
+
+#[doc(hidden)]
+pub const DESC_BUFFER_SIZE: usize = 128;
+
+pub type ComponentDesc = [u8; DESC_BUFFER_SIZE];
+type RawComponentCreateFn = unsafe extern "C" fn(
+    *const dmGameObject::ComponentTypeCreateCtx,
+    *mut dmGameObject::ComponentType,
+) -> i32;
+type RawComponentDestroyFn = unsafe extern "C" fn(
+    *const dmGameObject::ComponentTypeCreateCtx,
+    *mut dmGameObject::ComponentType,
+) -> i32;
+
+pub fn register_component_type(
+    name: &str,
+    desc: &mut ComponentDesc,
+    create: RawComponentCreateFn,
+    destroy: Option<RawComponentDestroyFn>,
+) {
+    let name = CString::new(name).unwrap();
+    unsafe {
+        dmGameObject::RegisterComponentTypeDescriptor(
+            desc.as_mut_ptr() as *mut dmGameObject::ComponentTypeDescriptor,
+            name.as_ptr(),
+            Some(create),
+            destroy,
+        );
+    }
+}
+
+#[macro_export]
+macro_rules! declare_component_type {
+    ($symbol:ident, $create:expr, $destroy:expr) => {
+		paste! {
+			static mut [<$symbol> _DESC]: dmgameobject::ComponentDesc = [0u8; dmgameobject::DESC_BUFFER_SIZE];
+
+			#[no_mangle]
+			#[ctor]
+			unsafe fn $symbol() {
+				dmgameobject::register_component_type(
+					stringify!($symbol),
+					&mut [<$symbol _DESC>],
+					[<$symbol _create>],
+					[<$symbol _destroy>],
+				);
+			}
+		}
+	};
 }
