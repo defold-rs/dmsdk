@@ -65,6 +65,7 @@ fn main() {
         // bindings for.
         .header("dmsdk/sdk.h")
         .header("dmsdk/resource/resource.h")
+        .header("dmsdk/gameobject/component.h")
         //.blocklist_file("graphics_native.h")
         //.blocklist_file("dmsdk/graphics/glfw/glfw.h")
         .blocklist_item("std")
