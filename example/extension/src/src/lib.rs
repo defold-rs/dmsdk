@@ -131,3 +131,6 @@ declare_configfile_extension!(
     None,
     None
 );
+
+mod custom_component;
+declare_component_type!(MY_COMPONENT, custom_component::create_type, None);

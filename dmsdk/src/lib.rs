@@ -25,3 +25,6 @@ pub use dmsdk_ffi as ffi;
 
 #[doc(hidden)]
 pub use paste::paste;
+
+#[doc(hidden)]
+pub use ctor::ctor;
