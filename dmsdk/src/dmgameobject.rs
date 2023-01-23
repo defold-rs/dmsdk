@@ -158,15 +158,13 @@ pub struct ComponentCreateParams {
     pub index: u16,
 }
 
-impl ComponentCreateParams {
-    pub fn new(ptr: *const dmGameObject::ComponentCreateParams) -> Self {
-        unsafe { Self::from(ptr) }
-    }
-}
-
 impl From<*const dmGameObject::ComponentCreateParams> for ComponentCreateParams {
     fn from(ptr: *const dmGameObject::ComponentCreateParams) -> Self {
-        unsafe { Self::from(ptr) }
+        let params = unsafe { *ptr };
+
+        let rust_params = Self::from(&params);
+        std::mem::forget(params);
+        rust_params
     }
 }
 
