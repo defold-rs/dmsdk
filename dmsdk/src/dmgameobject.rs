@@ -160,18 +160,18 @@ pub struct ComponentCreateParams {
 
 impl ComponentCreateParams {
     pub fn new(ptr: *const dmGameObject::ComponentCreateParams) -> Self {
-        unsafe { Self::from(*ptr) }
+        unsafe { Self::from(ptr) }
     }
 }
 
 impl From<*const dmGameObject::ComponentCreateParams> for ComponentCreateParams {
     fn from(ptr: *const dmGameObject::ComponentCreateParams) -> Self {
-        unsafe { Self::from(*ptr) }
+        unsafe { Self::from(ptr) }
     }
 }
 
-impl From<dmGameObject::ComponentCreateParams> for ComponentCreateParams {
-    fn from(params: dmGameObject::ComponentCreateParams) -> Self {
+impl From<&dmGameObject::ComponentCreateParams> for ComponentCreateParams {
+    fn from(params: &dmGameObject::ComponentCreateParams) -> Self {
         Self {
             instance: params.m_Instance,
             position: params.m_Position.into(),
