@@ -26,19 +26,17 @@ pub type ResourceDestroy = unsafe extern "C" fn(params: *const ResourceDestroyPa
 pub type ResourceRecreate = unsafe extern "C" fn(params: *const ResourceRecreateParams) -> i32;
 
 #[macro_export]
-macro_rules! register_resource_type {
-    ($symbol:ident, $suffix:expr, $register_fn:expr, $deregister_fn:expr) => {
+macro_rules! declare_resource_type {
+    ($symbol:ident, $name:expr, $register_fn:expr, $deregister_fn:expr) => {
         paste! {
-            static mut [<$symbol _TYPE_CREATOR_DESC>]: dmresource::TypeCreatorDesc = dmresource::TypeCreatorDesc {
-                _bindgen_opaque_blob: [0u64; 4],
-            };
+            static mut [<$symbol _TYPE_CREATOR_DESC>]: [u8; 128] = [0u8; 128];
 
             #[no_mangle]
             #[dmextension::ctor]
             unsafe fn $symbol() {
                 dmresource::_register_type_creator_desc(
                     &mut [<$symbol _TYPE_CREATOR_DESC>],
-                    $suffix,
+                    $name,
                     $register_fn,
                     $deregister_fn,
                 );
@@ -48,17 +46,17 @@ macro_rules! register_resource_type {
 }
 
 pub fn _register_type_creator_desc(
-    desc: &mut TypeCreatorDesc,
-    suffix: &str,
+    desc: &mut [u8; 128],
+    name: &str,
     register_fn: ResourceTypeRegister,
     deregister_fn: Option<ResourceTypeDeregister>,
 ) {
-    let suffix = CString::new(suffix).unwrap();
+    let name = CString::new(name).unwrap();
     unsafe {
         dmResource::RegisterTypeCreatorDesc(
-            desc,
-            4,
-            suffix.as_ptr(),
+            desc.as_mut_ptr() as *mut dmResource::TypeCreatorDesc,
+            128,
+            name.as_ptr(),
             Some(register_fn),
             deregister_fn,
         );

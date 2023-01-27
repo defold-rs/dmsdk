@@ -1,4 +1,6 @@
-use dmsdk::*;
+use std::ffi::c_void;
+
+use dmsdk::{ffi::dmResource, *};
 
 // LUA FUNCTIONS //
 fn lua_function(l: lua::State) -> i32 {
@@ -135,7 +137,36 @@ declare_configfile_extension!(
 mod custom_component;
 declare_component_type!(
     MY_COMPONENT,
-    "",
+    "testc",
     custom_component::create_type,
     Some(custom_component::destroy_type)
 );
+
+#[no_mangle]
+unsafe extern "C" fn resource_create(params: *const dmResource::ResourceCreateParams) -> i32 {
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn resource_destroy(params: *const dmResource::ResourceDestroyParams) -> i32 {
+    0
+}
+
+#[no_mangle]
+unsafe extern "C" fn resource_type_register(
+    ctx: *mut dmResource::ResourceTypeRegisterContext,
+) -> i32 {
+    let ctx = *ctx;
+    dmresource::register_type(
+        ctx.m_Factory,
+        ctx.m_Name,
+        &mut () as *mut _ as *mut c_void,
+        None,
+        Some(resource_create),
+        None,
+        Some(resource_destroy),
+        None,
+    )
+}
+
+declare_resource_type!(MY_RESOURCE, "testc", resource_type_register, None);
