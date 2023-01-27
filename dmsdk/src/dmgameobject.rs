@@ -201,7 +201,7 @@ impl ComponentType {
 
 #[macro_export]
 macro_rules! declare_component_type {
-    ($symbol:ident, $create:expr, $destroy:expr) => {
+    ($symbol:ident, $name:expr, $create:expr, $destroy:expr) => {
 		paste! {
 			static mut [<$symbol _DESC>]: dmgameobject::ComponentDesc = [0u8; dmgameobject::DESC_BUFFER_SIZE];
 
@@ -219,7 +219,7 @@ macro_rules! declare_component_type {
 			#[ctor]
 			unsafe fn $symbol() {
 				dmgameobject::register_component_type(
-					stringify!($symbol),
+					$name,
 					&mut [<$symbol _DESC>],
 					[<$symbol _create>],
 					Some([<$symbol _destroy>]),
