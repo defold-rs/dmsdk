@@ -15,3 +15,10 @@ pub fn create_type(
     //component.set_create_fn(create);
     0
 }
+pub fn destroy_type(
+    ctx: *const dmGameObject::ComponentTypeCreateCtx,
+    component: *mut dmGameObject::ComponentType,
+) -> i32 {
+    //component.set_create_fn(create);
+    0
+}

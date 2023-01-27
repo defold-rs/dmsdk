@@ -133,4 +133,9 @@ declare_configfile_extension!(
 );
 
 mod custom_component;
-declare_component_type!(MY_COMPONENT, "coolc", custom_component::create_type, None);
+declare_component_type!(
+    MY_COMPONENT,
+    "",
+    custom_component::create_type,
+    Some(custom_component::destroy_type)
+);

@@ -122,7 +122,7 @@ pub fn register_component_type(
     name: &str,
     desc: &mut ComponentDesc,
     create: RawComponentTypeCreateFn,
-    destroy: Option<RawComponentTypeDestroyFn>,
+    destroy: RawComponentTypeDestroyFn,
 ) {
     let name = CString::new(name).unwrap();
     unsafe {
@@ -130,7 +130,7 @@ pub fn register_component_type(
             desc.as_mut_ptr() as *mut dmGameObject::ComponentTypeDescriptor,
             name.as_ptr(),
             Some(create),
-            destroy,
+            Some(destroy),
         );
     }
 }
@@ -212,7 +212,11 @@ macro_rules! declare_component_type {
 
 			#[no_mangle]
 			unsafe extern "C" fn [<$symbol _destroy>](ctx: *const ffi::dmGameObject::ComponentTypeCreateCtx, component: *mut ffi::dmGameObject::ComponentType) -> i32 {
-				0
+				if let Some(func) = $destroy {
+					func(ctx, component)
+				} else {
+					0
+				}
 			}
 
 			#[no_mangle]
@@ -222,7 +226,7 @@ macro_rules! declare_component_type {
 					$name,
 					&mut [<$symbol _DESC>],
 					[<$symbol _create>],
-					Some([<$symbol _destroy>]),
+					[<$symbol _destroy>],
 				);
 			}
 		}
