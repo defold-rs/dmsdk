@@ -207,7 +207,7 @@ macro_rules! declare_component_type {
 
 			#[no_mangle]
 			unsafe extern "C" fn [<$symbol _create>](ctx: *const ffi::dmGameObject::ComponentTypeCreateCtx, component: *mut ffi::dmGameObject::ComponentType) -> i32 {
-				$create(ctx, dmgameobject::ComponentType::new(component))
+				$create(ctx, component)
 			}
 
 			#[no_mangle]

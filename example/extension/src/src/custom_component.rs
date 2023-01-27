@@ -10,7 +10,7 @@ unsafe extern "C" fn create(params: *const dmGameObject::ComponentCreateParams) 
 
 pub fn create_type(
     ctx: *const dmGameObject::ComponentTypeCreateCtx,
-    component: dmgameobject::ComponentType,
+    component: *mut dmGameObject::ComponentType,
 ) -> i32 {
     //component.set_create_fn(create);
     0
