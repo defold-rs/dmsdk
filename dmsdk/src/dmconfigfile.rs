@@ -114,10 +114,10 @@ pub const DESC_BUFFER_SIZE: u32 = 64;
 macro_rules! declare_plugin_lifecycle {
     ($symbol:ident, $option:expr) => {
         #[no_mangle]
-        unsafe extern "C" fn $symbol(config: dmconfigfile::ConfigFile) {
+        unsafe extern "C" fn $symbol(config: dmconfigfile::RawConfigFile) {
             let func: Option<dmconfigfile::PluginLifecycle> = $option;
             if let Some(func) = func {
-                func(config);
+                func(config.into());
             }
         }
     };
