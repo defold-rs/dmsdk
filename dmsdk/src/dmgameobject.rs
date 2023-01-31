@@ -162,9 +162,7 @@ impl From<*const dmGameObject::ComponentCreateParams> for ComponentCreateParams 
     fn from(ptr: *const dmGameObject::ComponentCreateParams) -> Self {
         let params = unsafe { *ptr };
 
-        let rust_params = Self::from(&params);
-        //std::mem::forget(params);
-        rust_params
+        Self::from(&params)
     }
 }
 

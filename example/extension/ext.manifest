@@ -1,6 +1,1 @@
 name: "RUST"
-
-platforms:
-  common:
-    context:
-      symbols: ["MY_COMPONENT"]

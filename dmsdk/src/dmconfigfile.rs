@@ -3,11 +3,26 @@
 use dmsdk_ffi::dmConfigFile;
 use std::ffi::{c_char, CStr, CString};
 
-/// Pointer to a project config file.
-pub type ConfigFile = dmConfigFile::HConfig;
+#[doc(hidden)]
+pub type RawConfigFile = dmConfigFile::HConfig;
 
-///
-pub struct Config {}
+/// Handle of the project's configuration file.
+#[derive(Debug, Clone, Copy)]
+pub struct ConfigFile {
+    ptr: dmConfigFile::HConfig,
+}
+
+impl From<dmConfigFile::HConfig> for ConfigFile {
+    fn from(ptr: dmConfigFile::HConfig) -> Self {
+        Self { ptr }
+    }
+}
+
+impl From<ConfigFile> for dmConfigFile::HConfig {
+    fn from(config: ConfigFile) -> Self {
+        config.ptr
+    }
+}
 
 /// Gets the corresponding config value as a String.
 ///
@@ -19,22 +34,19 @@ pub struct Config {}
 /// use dmsdk::*;
 ///
 /// fn app_init(params: dmextension::AppParams) -> dmextension::Result {
-///     let title = unsafe { dmconfigfile::get_string(params.config, "project.title", "Untitled") };
+///     let title = dmconfigfile::get_string(params.config, "project.title", "Untitled");
 ///     dmlog::info!("Project title is: {title}");
 ///
 ///     dmextension::Result::Ok
 /// }
 /// ```
-///
-/// # Safety
-///
-/// This function is safe as long as `config` points to a valid config file.
-pub unsafe fn get_string(config: ConfigFile, key: &str, default_value: &str) -> String {
+pub fn get_string(config: ConfigFile, key: &str, default_value: &str) -> String {
     let key = CString::new(key).unwrap();
     let default_value = CString::new(default_value).unwrap();
 
-    let ptr = dmConfigFile::GetString(config, key.as_ptr(), default_value.as_ptr());
-    let cstr = CStr::from_ptr(ptr);
+    let ptr =
+        unsafe { dmConfigFile::GetString(config.into(), key.as_ptr(), default_value.as_ptr()) };
+    let cstr = unsafe { CStr::from_ptr(ptr) };
     String::from_utf8_lossy(cstr.to_bytes()).into_owned()
 }
 
@@ -48,19 +60,15 @@ pub unsafe fn get_string(config: ConfigFile, key: &str, default_value: &str) -> 
 /// use dmsdk::*;
 ///
 /// fn app_init(params: dmextension::AppParams) -> dmextension::Result {
-///     let display_width = unsafe { dmconfigfile::get_int(params.config, "display.width", 960) };
+///     let display_width = dmconfigfile::get_int(params.config, "display.width", 960);
 ///     dmlog::info!("Window width is: {display_width}");
 ///
 ///     dmextension::Result::Ok
 /// }
 /// ```
-///
-/// # Safety
-///
-/// This function is safe as long as `config` points to a valid config file.
-pub unsafe fn get_int(config: ConfigFile, key: &str, default_value: i32) -> i32 {
+pub fn get_int(config: ConfigFile, key: &str, default_value: i32) -> i32 {
     let key = CString::new(key).unwrap();
-    dmConfigFile::GetInt(config, key.as_ptr(), default_value)
+    unsafe { dmConfigFile::GetInt(config.into(), key.as_ptr(), default_value) }
 }
 
 /// Gets the corresponding config value as an f32.
@@ -73,19 +81,15 @@ pub unsafe fn get_int(config: ConfigFile, key: &str, default_value: i32) -> i32 
 /// use dmsdk::*;
 ///
 /// fn app_init(params: dmextension::AppParams) -> dmextension::Result {
-///     let gravity = unsafe { dmconfigfile::get_float(params.config, "physics.gravity_y", -9.8) };
+///     let gravity = dmconfigfile::get_float(params.config, "physics.gravity_y", -9.8);
 ///     dmlog::info!("Gravity is: {gravity}");
 ///
 ///     dmextension::Result::Ok
 /// }
 /// ```
-///
-/// # Safety
-///
-/// This function is safe as long as `config` points to a valid config file.
-pub unsafe fn get_float(config: ConfigFile, key: &str, default_value: f32) -> f32 {
+pub fn get_float(config: ConfigFile, key: &str, default_value: f32) -> f32 {
     let key = CString::new(key).unwrap();
-    dmConfigFile::GetFloat(config, key.as_ptr(), default_value)
+    unsafe { dmConfigFile::GetFloat(config.into(), key.as_ptr(), default_value) }
 }
 
 /// Callback function called during the config plugin lifecycle.
@@ -95,9 +99,10 @@ pub type PluginGetter<T> = fn(ConfigFile, &str, T) -> Option<T>;
 #[doc(hidden)]
 pub type StringGetter = fn(ConfigFile, &str, &str) -> Option<String>;
 #[doc(hidden)]
-pub type RawPluginLifecycle = unsafe extern "C" fn(ConfigFile);
+pub type RawPluginLifecycle = unsafe extern "C" fn(dmConfigFile::HConfig);
 #[doc(hidden)]
-pub type RawPluginGetter<T> = unsafe extern "C" fn(ConfigFile, *const c_char, T, *mut T) -> bool;
+pub type RawPluginGetter<T> =
+    unsafe extern "C" fn(dmConfigFile::HConfig, *const c_char, T, *mut T) -> bool;
 #[doc(hidden)]
 pub type Desc = [u8; DESC_BUFFER_SIZE as usize];
 
@@ -124,7 +129,7 @@ macro_rules! declare_plugin_getter {
     ($symbol:ident, $option:expr, $type:ident) => {
         #[no_mangle]
         unsafe extern "C" fn $symbol(
-            config: dmconfigfile::ConfigFile,
+            config: dmconfigfile::RawConfigFile,
             key: *const core::ffi::c_char,
             default_value: $type,
             out: *mut $type,
@@ -134,7 +139,7 @@ macro_rules! declare_plugin_getter {
                 let key = core::ffi::CStr::from_ptr(key)
                     .to_str()
                     .expect("Invalid UTF-8 sequence in key!");
-                if let Some(value) = func(config, key, default_value) {
+                if let Some(value) = func(config.into(), key, default_value) {
                     out.write(value);
                     true
                 } else {
@@ -153,7 +158,7 @@ macro_rules! declare_plugin_string_getter {
     ($symbol:ident, $option:expr) => {
         #[no_mangle]
         unsafe extern "C" fn $symbol(
-            config: dmconfigfile::ConfigFile,
+            config: dmconfigfile::RawConfigFile,
             key: *const core::ffi::c_char,
             default_value: *const core::ffi::c_char,
             out: *mut *const core::ffi::c_char,
@@ -178,7 +183,7 @@ macro_rules! declare_plugin_string_getter {
                     }
                 };
 
-                if let Some(value) = func(config, key.unwrap(), default_value) {
+                if let Some(value) = func(config.into(), key.unwrap(), default_value) {
                     let cstr =
                         std::ffi::CString::new(value).expect("Unexpected null in return value!");
 

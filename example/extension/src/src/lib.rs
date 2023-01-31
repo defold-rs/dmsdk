@@ -1,6 +1,4 @@
-use std::ffi::c_void;
-
-use dmsdk::{ffi::dmResource, *};
+use dmsdk::*;
 
 // LUA FUNCTIONS //
 fn lua_function(l: lua::State) -> i32 {
@@ -73,17 +71,15 @@ declare_functions!(
 
 // LIFECYCLE FUNCTIONS //
 fn app_init(params: dmextension::AppParams) -> dmextension::Result {
-    unsafe {
-        let config = dmengine::get_config_file(params);
+    let config = dmengine::get_config_file(params);
 
-        let title = dmconfigfile::get_string(config, "project.title", "Untitled");
-        let display_width = dmconfigfile::get_int(config, "display.width", 640);
-        let gravity = dmconfigfile::get_float(config, "physics.gravity_y", -9.8);
+    let title = dmconfigfile::get_string(config, "project.title", "Untitled");
+    let display_width = dmconfigfile::get_int(config, "display.width", 640);
+    let gravity = dmconfigfile::get_float(config, "physics.gravity_y", -9.8);
 
-        dmlog::info!("Display width is: {display_width}");
-        dmlog::info!("Project title is: {title}");
-        dmlog::info!("Gravity is: {gravity}");
-    }
+    dmlog::info!("Display width is: {display_width}");
+    dmlog::info!("Project title is: {title}");
+    dmlog::info!("Gravity is: {gravity}");
 
     let time = dmtime::get_time();
     dmlog::info!("Current time is: {time}");
@@ -95,7 +91,6 @@ fn lua_init(l: lua::State) {
     let top = lua::get_top(l);
 
     lua::register(l, "rust", TEST);
-
     lua::pop(l, 1);
 
     assert_eq!(top, lua::get_top(l));
@@ -142,31 +137,9 @@ declare_component_type!(
     Some(custom_component::destroy_type)
 );
 
-#[no_mangle]
-unsafe extern "C" fn resource_create(params: *const dmResource::ResourceCreateParams) -> i32 {
-    0
-}
-
-#[no_mangle]
-unsafe extern "C" fn resource_destroy(params: *const dmResource::ResourceDestroyParams) -> i32 {
-    0
-}
-
-#[no_mangle]
-unsafe extern "C" fn resource_type_register(
-    ctx: *mut dmResource::ResourceTypeRegisterContext,
-) -> i32 {
-    let ctx = *ctx;
-    dmresource::register_type(
-        ctx.m_Factory,
-        ctx.m_Name,
-        &mut () as *mut _ as *mut c_void,
-        None,
-        Some(resource_create),
-        None,
-        Some(resource_destroy),
-        None,
-    )
-}
-
-declare_resource_type!(MY_RESOURCE, "testc", resource_type_register, None);
+declare_resource_type!(
+    MY_RESOURCE,
+    "testc",
+    custom_component::resource_type_register,
+    None
+);

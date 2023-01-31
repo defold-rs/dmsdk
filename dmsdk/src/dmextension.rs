@@ -97,7 +97,7 @@ impl AppParams {
     #[doc(hidden)]
     pub unsafe fn from(params: RawAppParams) -> Self {
         Self {
-            config: (*params).m_ConfigFile,
+            config: (*params).m_ConfigFile.into(),
             ptr: params,
         }
     }
@@ -108,7 +108,7 @@ impl Params {
     #[doc(hidden)]
     pub unsafe fn from(params: RawParams) -> Self {
         Self {
-            config: (*params).m_ConfigFile,
+            config: (*params).m_ConfigFile.into(),
             l: lua::State::new((*params).m_L),
             ptr: params,
         }

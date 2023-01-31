@@ -4,7 +4,7 @@ use crate::{dmconfigfile, dmextension, dmgameobject, dmhid, dmwebserver, ffi::dm
 
 /// Get the project config file from an instance of [`AppParams`](dmextension::AppParams).
 pub fn get_config_file(app_params: dmextension::AppParams) -> dmconfigfile::ConfigFile {
-    unsafe { dmEngine::GetConfigFile(app_params.ptr) }
+    unsafe { dmEngine::GetConfigFile(app_params.ptr) }.into()
 }
 
 /// Get the web server from an instance of [`AppParams`](dmextension::AppParams).
