@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose::STANDARD as b64, Engine};
 use dmsdk::*;
 
 // LUA FUNCTIONS //
@@ -34,7 +35,7 @@ fn read_userdata(l: lua::State) -> i32 {
 
 fn b64_encode(l: lua::State) -> i32 {
     let plaintext = lua::check_string(l, 1);
-    lua::push_string(l, &base64::encode(plaintext));
+    lua::push_string(l, &b64.encode(plaintext));
 
     1
 }
@@ -108,13 +109,17 @@ fn ext_final(_params: dmextension::Params) -> dmextension::Result {
     dmextension::Result::Ok
 }
 
+fn on_update(_params: dmextension::Params) -> dmextension::Result {
+    dmextension::Result::Ok
+}
+
 declare_extension!(
     RUST,
     Some(app_init),
     None,
     Some(ext_init),
     Some(ext_final),
-    None,
+    Some(on_update),
     None
 );
 
