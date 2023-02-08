@@ -28,3 +28,6 @@ pub use paste::paste;
 
 #[doc(hidden)]
 pub use ctor::ctor;
+
+#[doc(hidden)]
+pub use lazy_static::lazy_static;

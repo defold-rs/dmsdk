@@ -1,5 +1,6 @@
 use base64::{engine::general_purpose::STANDARD as b64, Engine};
 use dmsdk::*;
+use dmsdk_proc::lua_fn;
 
 // LUA FUNCTIONS //
 fn lua_function(l: lua::State) -> i32 {
@@ -113,15 +114,15 @@ fn on_update(_params: dmextension::Params) -> dmextension::Result {
     dmextension::Result::Ok
 }
 
-declare_extension!(
-    RUST,
-    Some(app_init),
-    None,
-    Some(ext_init),
-    Some(ext_final),
-    Some(on_update),
-    None
-);
+// declare_extension!(
+//     RUST,
+//     Some(app_init),
+//     None,
+//     Some(ext_init),
+//     Some(ext_final),
+//     Some(on_update),
+//     None
+// );
 
 mod config_extension;
 
@@ -148,3 +149,16 @@ declare_resource_type!(
     custom_component::resource_type_register,
     None
 );
+
+#[derive(Default)]
+struct MyExtension;
+
+impl dmextension::Extension for MyExtension {
+    fn app_init(&mut self, params: dmextension::AppParams) -> dmextension::Result {
+        dmlog::info!("Cool!");
+        dmextension::Result::Ok
+    }
+}
+
+declare_extension!(MyExtension);
+//dmsdk_proc::declare_extension!(MyExtension);

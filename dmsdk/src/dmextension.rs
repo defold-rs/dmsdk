@@ -115,6 +115,25 @@ impl Params {
     }
 }
 
+pub trait Extension {
+    fn app_init(&mut self, params: AppParams) -> Result {
+        Result::Ok
+    }
+    fn app_final(&mut self, params: AppParams) -> Result {
+        Result::Ok
+    }
+    fn ext_init(&mut self, params: Params) -> Result {
+        Result::Ok
+    }
+    fn ext_final(&mut self, params: Params) -> Result {
+        Result::Ok
+    }
+    fn on_update(&mut self, params: Params) -> Result {
+        Result::Ok
+    }
+    fn on_event(&mut self, params: Params, event: Event) {}
+}
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __declare_app_callback {
@@ -158,6 +177,66 @@ macro_rules! __declare_event_callback {
             }
         }
     };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __app_callback {
+    ($ext_name:ident, $fn_name:ident) => {
+		dmsdk::paste! {
+			#[no_mangle]
+			unsafe extern "C" fn [<$ext_name:snake:lower _ $fn_name>](params: dmsdk::dmextension::RawAppParams) -> i32 {
+				[<$ext_name:snake:upper>].lock().unwrap_or_else(|err| {
+					panic!(
+						"failed to lock mutex for {}: {}",
+						stringify!($ext_name),
+						err
+					)
+				})
+				.$fn_name(dmsdk::dmextension::AppParams::from(params)).into()
+			}
+		}
+	};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __ext_callback {
+    ($ext_name:ident, $fn_name:ident) => {
+		dmsdk::paste! {
+			#[no_mangle]
+			unsafe extern "C" fn [<$ext_name:snake:lower _ $fn_name>](params: dmsdk::dmextension::RawParams) -> i32 {
+				[<$ext_name:snake:upper>].lock().unwrap_or_else(|err| {
+					panic!(
+						"failed to lock mutex for {}: {}",
+						stringify!($ext_name),
+						err
+					)
+				})
+				.$fn_name(dmsdk::dmextension::Params::from(params)).into()
+			}
+		}
+	};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __event_callback {
+    ($ext_name:ident) => {
+		dmsdk::paste! {
+			#[no_mangle]
+			unsafe extern "C" fn [<$ext_name:snake:lower _on_event>](params: dmsdk::dmextension::RawParams, event: dmsdk::dmextension::RawEvent) {
+				[<$ext_name:snake:upper>].lock().unwrap_or_else(|err| {
+					panic!(
+						"failed to lock mutex for {}: {}",
+						stringify!($ext_name),
+						err
+					)
+				})
+				.on_event(dmsdk::dmextension::Params::from(params), dmsdk::dmextension::Event::from((*event).m_Event));
+			}
+		}
+	};
 }
 
 /// Equivalent to `DM_DECLARE_EXTENSION` in regular C++ extensions.
@@ -208,6 +287,43 @@ macro_rules! declare_extension {
                     [<$symbol _on_event>],
                 );
             }
+        }
+    };
+    ($name:ident) => {
+        dmsdk::paste! {
+			const LOG_DOMAIN: &str = stringify!([<$name:upper>]);
+			mod __init_extension {
+				use super::$name as [<$name Struct>];
+				use dmsdk::dmextension::Extension;
+
+				static mut [<$name:snake:upper _DESC>]: dmsdk::dmextension::Desc = [0u8; dmsdk::dmextension::DESC_BUFFER_SIZE];
+
+				dmsdk::lazy_static! {
+					static ref [<$name:snake:upper>]: std::sync::Mutex<[<$name Struct>]> = std::sync::Mutex::new([<$name Struct>]::default());
+				}
+
+				dmsdk::__app_callback!($name, app_init);
+				dmsdk::__app_callback!($name, app_final);
+				dmsdk::__ext_callback!($name, ext_init);
+				dmsdk::__ext_callback!($name, ext_final);
+				dmsdk::__ext_callback!($name, on_update);
+				dmsdk::__event_callback!($name);
+
+				#[no_mangle]
+				#[dmsdk::ctor]
+				unsafe fn $name() {
+					dmsdk::dmextension::__register(
+						stringify!($name),
+						&mut [<$name:snake:upper _DESC>],
+						[<$name:snake:lower _app_init>],
+						[<$name:snake:lower _app_final>],
+						[<$name:snake:lower _ext_init>],
+						[<$name:snake:lower _ext_final>],
+						[<$name:snake:lower _on_update>],
+						[<$name:snake:lower _on_event>],
+					);
+				}
+			}
         }
     };
 }
