@@ -7,6 +7,9 @@ pub struct Context {
     ptr: *mut dmHID::Context,
 }
 
+unsafe impl Send for Context {}
+unsafe impl Sync for Context {}
+
 impl Context {
     /// Creates a new [`Context`] from the given pointer.
     ///
