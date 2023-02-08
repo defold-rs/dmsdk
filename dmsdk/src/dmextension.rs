@@ -37,6 +37,7 @@ pub enum Result {
 
 /// Possible events that an [`EventCallback`] can respond to.
 #[allow(missing_docs)]
+#[derive(Debug, Clone, Copy)]
 pub enum Event {
     ActivateApp,
     DeactivateApp,
@@ -136,51 +137,6 @@ pub trait Extension {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __declare_app_callback {
-    ($symbol:ident, $option:expr) => {
-        #[no_mangle]
-        unsafe extern "C" fn $symbol(params: dmextension::RawAppParams) -> i32 {
-            let func: Option<dmextension::AppCallback> = $option;
-            match func {
-                Some(func) => func(dmextension::AppParams::from(params)).into(),
-                None => 0,
-            }
-        }
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __declare_callback {
-    ($symbol:ident, $option:expr) => {
-        #[no_mangle]
-        unsafe extern "C" fn $symbol(params: dmextension::RawParams) -> i32 {
-            let func: Option<dmextension::Callback> = $option;
-            match func {
-                Some(func) => func(dmextension::Params::from(params)).into(),
-                None => 0,
-            }
-        }
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __declare_event_callback {
-    ($symbol:ident, $option:expr) => {
-        #[no_mangle]
-        unsafe extern "C" fn $symbol(params: dmextension::RawParams, event: dmextension::RawEvent) {
-            let func: Option<dmextension::EventCallback> = $option;
-            match func {
-                Some(func) => func(dmextension::Params::from(params), (*event).m_Event.into()),
-                None => {}
-            }
-        }
-    };
-}
-
-#[doc(hidden)]
-#[macro_export]
 macro_rules! __app_callback {
     ($ext_name:ident, $fn_name:ident) => {
 		dmsdk::paste! {
@@ -244,51 +200,28 @@ macro_rules! __event_callback {
 /// # Examples
 /// ```
 /// use dmsdk::*;
+/// use dmextension::{Params, Event, Extension}
 ///
-/// fn app_init(params: dmextension::AppParams) -> dmextension::Result { dmextension::Result::Ok }
-/// fn app_final(params: dmextension::AppParams) -> dmextension::Result { dmextension::Result::Ok }
-/// fn ext_init(params: dmextension::Params) -> dmextension::Result {
-///     dmlog::info!("Registered extension MY_EXTENSION");
-///     
-///     dmextension::Result::Ok
+/// #[derive(Default)]
+/// struct MyExtension;
+///
+/// // See the Extension trait documentation for all available functions
+/// impl Extension for MyExtension {
+///     fn ext_init(params: Params) -> dmextension::Result {
+///         dmlog::info!("Registered extension MyExtension");
+///
+///         dmextension::Result::Ok
+///     }
+///
+///     fn on_event(params: Params, event: Event) {
+///         dmlong::info!("Received event: {:?}", event);
+///     }
 /// }
-/// fn ext_final(params: dmextension::Params) -> dmextension::Result { dmextension::Result::Ok }
-/// fn on_update(params: dmextension::Params) -> dmextension::Result { dmextension::Result::Ok }
-/// fn on_event(params: dmextension::Params, event: dmextension::Event) { }
 ///
-/// declare_extension!(MY_EXTENSION, Some(app_init), Some(app_final), Some(ext_init), Some(ext_final), Some(on_update), Some(on_event));
+/// declare_extension!(MyExtension);
 /// ```
 #[macro_export]
 macro_rules! declare_extension {
-    ($symbol:ident, $app_init:expr, $app_final:expr, $ext_init:expr, $ext_final:expr, $on_update:expr, $on_event:expr) => {
-        paste! {
-            static mut [<$symbol _DESC>]: dmextension::Desc = [0u8; dmextension::DESC_BUFFER_SIZE];
-
-            const LOG_DOMAIN: &str = stringify!($symbol);
-
-            __declare_app_callback!([<$symbol _app_init>], $app_init);
-            __declare_app_callback!([<$symbol _app_final>], $app_final);
-            __declare_callback!([<$symbol _ext_init>], $ext_init);
-            __declare_callback!([<$symbol _ext_final>], $ext_final);
-            __declare_callback!([<$symbol _on_update>], $on_update);
-            __declare_event_callback!([<$symbol _on_event>], $on_event);
-
-            #[no_mangle]
-            #[dmextension::ctor]
-            unsafe fn $symbol() {
-                dmextension::__register(
-                    stringify!($symbol),
-                    &mut [<$symbol _DESC>],
-                    [<$symbol _app_init>],
-                    [<$symbol _app_final>],
-                    [<$symbol _ext_init>],
-                    [<$symbol _ext_final>],
-                    [<$symbol _on_update>],
-                    [<$symbol _on_event>],
-                );
-            }
-        }
-    };
     ($name:ident) => {
         dmsdk::paste! {
 			const LOG_DOMAIN: &str = stringify!([<$name:upper>]);

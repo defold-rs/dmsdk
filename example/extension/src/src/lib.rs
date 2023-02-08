@@ -1,4 +1,5 @@
 use base64::{engine::general_purpose::STANDARD as b64, Engine};
+use dmextension::{AppParams, Event, Extension, Params};
 use dmsdk::*;
 
 // LUA FUNCTIONS //
@@ -88,8 +89,8 @@ struct RustExt {
     hid_context: Option<dmhid::Context>,
 }
 
-impl dmextension::Extension for RustExt {
-    fn app_init(&mut self, params: dmextension::AppParams) -> dmextension::Result {
+impl Extension for RustExt {
+    fn app_init(&mut self, params: AppParams) -> dmextension::Result {
         dmlog::info!("Cool!");
 
         self.hid_context = Some(dmengine::get_hid_context(params));
@@ -97,14 +98,14 @@ impl dmextension::Extension for RustExt {
         dmextension::Result::Ok
     }
 
-    fn ext_init(&mut self, params: dmextension::Params) -> dmextension::Result {
+    fn ext_init(&mut self, params: Params) -> dmextension::Result {
         lua_init(params.l);
         dmlog::info!("Registered 'rust' module");
 
         dmextension::Result::Ok
     }
 
-    fn on_update(&mut self, _params: dmextension::Params) -> dmextension::Result {
+    fn on_update(&mut self, _params: Params) -> dmextension::Result {
         self.timer += 1;
 
         // Toggle pressed every 60 updates
@@ -119,6 +120,10 @@ impl dmextension::Extension for RustExt {
         }
 
         dmextension::Result::Ok
+    }
+
+    fn on_event(&mut self, params: Params, event: Event) {
+        dmlog::info!("Received event {:?}", event);
     }
 }
 
