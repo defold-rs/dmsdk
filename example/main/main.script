@@ -1,4 +1,6 @@
 function init(self)
+	msg.post(".", "acquire_input_focus")
+
 	print(rust.lua_function())
 	print(rust.reverse("Reversed by Rust"))
 	print(rust.b64_encode("Base64 encoded by Rust"))
@@ -12,4 +14,10 @@ function init(self)
 	print(sys.get_config_string("my_section.my_value", "default"))
 
 	rust.error()
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("touch") and not action.released then
+		print("Clicked!")
+	end
 end

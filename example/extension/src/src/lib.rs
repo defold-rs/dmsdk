@@ -1,6 +1,5 @@
 use base64::{engine::general_purpose::STANDARD as b64, Engine};
 use dmsdk::*;
-use dmsdk_proc::lua_fn;
 
 // LUA FUNCTIONS //
 fn lua_function(l: lua::State) -> i32 {
@@ -61,7 +60,7 @@ fn error(l: lua::State) -> i32 {
 }
 
 declare_functions!(
-    TEST,
+    LUA_FUNCTIONS,
     lua_function,
     reverse,
     create_userdata,
@@ -71,58 +70,59 @@ declare_functions!(
     error
 );
 
-// LIFECYCLE FUNCTIONS //
-fn app_init(params: dmextension::AppParams) -> dmextension::Result {
-    let config = dmengine::get_config_file(params);
-
-    let title = dmconfigfile::get_string(config, "project.title", "Untitled");
-    let display_width = dmconfigfile::get_int(config, "display.width", 640);
-    let gravity = dmconfigfile::get_float(config, "physics.gravity_y", -9.8);
-
-    dmlog::info!("Display width is: {display_width}");
-    dmlog::info!("Project title is: {title}");
-    dmlog::info!("Gravity is: {gravity}");
-
-    let time = dmtime::get_time();
-    dmlog::info!("Current time is: {time}");
-
-    dmextension::Result::Ok
-}
-
 fn lua_init(l: lua::State) {
     let top = lua::get_top(l);
 
-    lua::register(l, "rust", TEST);
+    lua::register(l, "rust", LUA_FUNCTIONS);
     lua::pop(l, 1);
 
     assert_eq!(top, lua::get_top(l));
 }
 
-fn ext_init(params: dmextension::Params) -> dmextension::Result {
-    lua_init(params.l);
-
-    dmlog::info!("Registered Rust extension");
-
-    dmextension::Result::Ok
+#[derive(Default)]
+struct RustExt {
+    timer: i32,
+    pressed: bool,
+    // There's no such thing as a "default" context,
+    // so we wrap it in an Option
+    hid_context: Option<dmhid::Context>,
 }
 
-fn ext_final(_params: dmextension::Params) -> dmextension::Result {
-    dmextension::Result::Ok
+impl dmextension::Extension for RustExt {
+    fn app_init(&mut self, params: dmextension::AppParams) -> dmextension::Result {
+        dmlog::info!("Cool!");
+
+        self.hid_context = Some(dmengine::get_hid_context(params));
+
+        dmextension::Result::Ok
+    }
+
+    fn ext_init(&mut self, params: dmextension::Params) -> dmextension::Result {
+        lua_init(params.l);
+        dmlog::info!("Registered 'rust' module");
+
+        dmextension::Result::Ok
+    }
+
+    fn on_update(&mut self, _params: dmextension::Params) -> dmextension::Result {
+        self.timer += 1;
+
+        // Toggle pressed every 60 updates
+        if self.timer % 60 == 0 {
+            self.pressed = !self.pressed;
+        }
+
+        if let Some(hid) = &self.hid_context {
+            if let Some(mouse) = hid.get_mouse(0) {
+                mouse.set_button(dmhid::MouseButton::Left, self.pressed);
+            }
+        }
+
+        dmextension::Result::Ok
+    }
 }
 
-fn on_update(_params: dmextension::Params) -> dmextension::Result {
-    dmextension::Result::Ok
-}
-
-// declare_extension!(
-//     RUST,
-//     Some(app_init),
-//     None,
-//     Some(ext_init),
-//     Some(ext_final),
-//     Some(on_update),
-//     None
-// );
+declare_extension!(RustExt);
 
 mod config_extension;
 
@@ -134,31 +134,3 @@ declare_configfile_extension!(
     None,
     None
 );
-
-mod custom_component;
-declare_component_type!(
-    MY_COMPONENT,
-    "testc",
-    custom_component::create_type,
-    Some(custom_component::destroy_type)
-);
-
-declare_resource_type!(
-    MY_RESOURCE,
-    "testc",
-    custom_component::resource_type_register,
-    None
-);
-
-#[derive(Default)]
-struct MyExtension;
-
-impl dmextension::Extension for MyExtension {
-    fn app_init(&mut self, params: dmextension::AppParams) -> dmextension::Result {
-        dmlog::info!("Cool!");
-        dmextension::Result::Ok
-    }
-}
-
-declare_extension!(MyExtension);
-//dmsdk_proc::declare_extension!(MyExtension);
