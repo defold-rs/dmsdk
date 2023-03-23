@@ -18,12 +18,6 @@ type RawCallback = unsafe extern "C" fn(RawParams) -> i32;
 type RawEventCallback = unsafe extern "C" fn(RawParams, RawEvent);
 #[doc(hidden)]
 pub type Desc = [u8; DESC_BUFFER_SIZE];
-/// Callback function called during the application lifecycle.
-pub type AppCallback = fn(AppParams) -> Result;
-/// Callback function called during the extension lifecycle.
-pub type Callback = fn(Params) -> Result;
-/// Callback for handling various events.
-pub type EventCallback = fn(Params, Event);
 
 #[doc(hidden)]
 pub const DESC_BUFFER_SIZE: usize = 128;
@@ -36,7 +30,7 @@ pub enum Result {
     InitError,
 }
 
-/// Possible events that an [`EventCallback`] can respond to.
+/// Event to be handled by [`Extension::on_event`].
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy)]
 pub enum Event {
@@ -74,7 +68,7 @@ impl From<i32> for Event {
     }
 }
 
-/// Params passed to an [`AppCallback`].
+/// Params passed to [`Extension::app_init`] and [`Extension::app_final`].
 #[derive(Clone, Copy)]
 pub struct AppParams {
     /// Project config file.
@@ -83,7 +77,7 @@ pub struct AppParams {
     pub ptr: RawAppParams,
 }
 
-/// Params passed to a [`Callback`] or [`EventCallback`].
+/// Params passed to [`Extension::ext_init`], [`Extension::ext_final`], [`Extension::on_update`], and [`Extension::on_event`].
 #[derive(Clone, Copy)]
 pub struct Params {
     /// Project config file.
