@@ -3,6 +3,7 @@
 use crate::ffi::dmHID;
 
 /// HID context.
+#[derive(Clone, Copy)]
 pub struct Context {
     ptr: *mut dmHID::Context,
 }
@@ -53,6 +54,7 @@ impl Context {
 }
 
 /// Wrapper around a [`dmHID::Keyboard`] pointer.
+#[derive(Clone, Copy)]
 pub struct Keyboard {
     ptr: *mut dmHID::Keyboard,
 }
@@ -76,6 +78,7 @@ impl Keyboard {
 }
 
 /// Wrapper around a [`dmHID::Mouse`] pointer.
+#[derive(Clone, Copy)]
 pub struct Mouse {
     ptr: *mut dmHID::Mouse,
 }
@@ -137,8 +140,8 @@ impl Mouse {
     }
 }
 
-#[derive(Clone, Copy)]
 /// Contains the state of a mouse at a given point in time.
+#[derive(Clone, Copy)]
 pub struct MousePacket {
     /// X position.
     pub x: i32,
@@ -172,6 +175,7 @@ impl From<dmHID::MousePacket> for MousePacket {
 }
 
 /// Wrapper around a [`dmHID::TouchDevice`] pointer.
+#[derive(Clone, Copy)]
 pub struct TouchDevice {
     ptr: *mut dmHID::TouchDevice,
 }
@@ -195,6 +199,7 @@ impl TouchDevice {
 }
 
 /// Wrapper around a [`dmHID::Gamepad`] pointer.
+#[derive(Clone, Copy)]
 pub struct Gamepad {
     ptr: *mut dmHID::Gamepad,
 }
@@ -223,6 +228,7 @@ impl Gamepad {
 }
 
 #[allow(missing_docs)]
+#[derive(Debug, Clone, Copy)]
 pub enum Phase {
     Began,
     Moved,
@@ -244,6 +250,7 @@ impl From<Phase> for i32 {
 }
 
 #[allow(missing_docs)]
+#[derive(Debug, Clone, Copy)]
 pub enum MouseButton {
     Left,
     Middle,
@@ -285,6 +292,7 @@ impl From<MouseButton> for i32 {
 
 #[allow(missing_docs)]
 #[repr(u32)]
+#[derive(Debug, Clone, Copy)]
 pub enum Key {
     // ASCII numbering
     Space = 32,

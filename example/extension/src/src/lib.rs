@@ -122,7 +122,7 @@ impl Extension for RustExt {
         dmextension::Result::Ok
     }
 
-    fn on_event(&mut self, params: Params, event: Event) {
+    fn on_event(&mut self, _params: Params, event: Event) {
         dmlog::info!("Received event {:?}", event);
     }
 }

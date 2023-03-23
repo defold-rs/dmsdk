@@ -4,7 +4,7 @@ use crate::ffi::Vectormath;
 
 /// Point in 3D space.
 #[allow(missing_docs)]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Point3 {
     pub x: f32,
     pub y: f32,
@@ -13,7 +13,7 @@ pub struct Point3 {
 
 /// Vector in 3D space.
 #[allow(missing_docs)]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Vector3 {
     pub x: f32,
     pub y: f32,
@@ -22,7 +22,7 @@ pub struct Vector3 {
 
 /// Quaternion.
 #[allow(missing_docs)]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Quat {
     pub x: f32,
     pub y: f32,

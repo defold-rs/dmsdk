@@ -30,6 +30,7 @@ pub const DESC_BUFFER_SIZE: usize = 128;
 
 /// Result of a callback function.
 #[allow(missing_docs)]
+#[derive(Debug, Clone, Copy)]
 pub enum Result {
     Ok,
     InitError,
