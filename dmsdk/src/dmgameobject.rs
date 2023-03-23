@@ -1,6 +1,6 @@
 //! Functions for manipulating game objects.
 
-use std::ffi::CString;
+use std::{ffi::CString, fmt::Debug};
 
 use libc::c_void;
 
@@ -8,8 +8,6 @@ use crate::{dmvmath, ffi::dmGameObject};
 
 /// Game object register.
 pub type Register = dmGameObject::HRegister;
-/// Game object instance.
-pub type Instance = dmGameObject::HInstance;
 
 const UNNAMED_IDENTIFIER: u64 = 12415623704795185700;
 
@@ -44,58 +42,55 @@ impl From<i32> for Error {
     }
 }
 
-/// [`Result`](core::result::Result) alias with an error type of [`Error`].
-pub type Result<T> = core::result::Result<T, Error>;
+/// Game object instance.
+pub struct Instance {
+    ptr: dmGameObject::HInstance,
+}
 
-/// Returns the ID of a game object if it has one.
-///
-/// # Safety
-///
-/// This function is safe as long as `instance` points to a valid game object.
-pub unsafe fn get_identifier(instance: Instance) -> Option<u64> {
-    let hash = dmGameObject::GetIdentifier(instance);
-    if hash == UNNAMED_IDENTIFIER {
-        None
-    } else {
-        Some(hash)
+impl Instance {
+    pub unsafe fn new(ptr: dmGameObject::HInstance) -> Self {
+        Self { ptr }
+    }
+
+    /// Returns the ID of this game object, if it has one.
+    pub fn id(&self) -> Option<u64> {
+        let hash = unsafe { dmGameObject::GetIdentifier(self.ptr) };
+        if hash == UNNAMED_IDENTIFIER {
+            None
+        } else {
+            Some(hash)
+        }
+    }
+
+    /// Returns the position of this game object.
+    pub fn position(&self) -> dmvmath::Point3 {
+        unsafe { dmGameObject::GetPosition(self.ptr).into() }
+    }
+
+    /// Returns the rotation of this game object.
+    pub fn rotation(&self) -> dmvmath::Quat {
+        unsafe { dmGameObject::GetRotation(self.ptr).into() }
+    }
+
+    /// Returns the scale of this game object.
+    pub fn scale(&self) -> dmvmath::Vector3 {
+        unsafe { dmGameObject::GetScale(self.ptr).into() }
+    }
+
+    /// Sets the position of this game object.
+    pub fn set_position(&self, position: dmvmath::Point3) {
+        unsafe { dmGameObject::SetPosition(self.ptr, position.into()) }
     }
 }
 
-/// Returns the position of a game object.
-///
-/// # Safety
-///
-/// This function is safe as long as `instance` points to a valid game object.
-pub unsafe fn get_position(instance: Instance) -> dmvmath::Point3 {
-    dmGameObject::GetPosition(instance).into()
+impl Debug for Instance {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("Instance").field(&self.id()).finish()
+    }
 }
 
-/// Returns the rotation of a game object.
-///
-/// # Safety
-///
-/// This function is safe as long as `instance` points to a valid game object.
-pub unsafe fn get_rotation(instance: Instance) -> dmvmath::Quat {
-    dmGameObject::GetRotation(instance).into()
-}
-
-/// Returns the scale of a game object.
-///
-/// # Safety
-///
-/// This function is safe as long as `instance` points to a valid game object.
-pub unsafe fn get_scale(instance: Instance) -> dmvmath::Vector3 {
-    dmGameObject::GetScale(instance).into()
-}
-
-/// Sets the position of a game object.
-///
-/// # Safety
-///
-/// This function is safe as long as `instance` points to a valid game object.
-pub unsafe fn set_position(instance: Instance, position: dmvmath::Point3) {
-    dmGameObject::SetPosition(instance, position.into())
-}
+/// [`Result`](core::result::Result) alias with an error type of [`Error`].
+pub type Result<T> = core::result::Result<T, Error>;
 
 #[doc(hidden)]
 pub const DESC_BUFFER_SIZE: usize = 128;
@@ -169,7 +164,7 @@ impl From<*const dmGameObject::ComponentCreateParams> for ComponentCreateParams 
 impl From<&dmGameObject::ComponentCreateParams> for ComponentCreateParams {
     fn from(params: &dmGameObject::ComponentCreateParams) -> Self {
         Self {
-            instance: params.m_Instance,
+            instance: unsafe { Instance::new(params.m_Instance) },
             position: params.m_Position.into(),
             rotation: params.m_Rotation.into(),
             scale: params.m_Scale.into(),
