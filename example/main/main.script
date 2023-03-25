@@ -11,6 +11,8 @@ function init(self)
 
 	rust.check_types(500, 3.141592, "utf-8 string: à,á,â,ã,ä,å", "\x0c\x22\x38", true)
 
+	print(rust.get_pos())
+
 	print(sys.get_config_string("my_section.my_value", "default"))
 
 	rust.error()

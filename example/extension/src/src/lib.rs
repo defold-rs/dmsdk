@@ -60,6 +60,14 @@ fn error(l: lua::State) -> i32 {
     lua::error!(l, "An expected error occured!");
 }
 
+fn get_pos(l: lua::State) -> i32 {
+    let object = dmscript::check_go_instance(l);
+    let pos = object.position();
+    dmscript::push_vector3(l, pos.into());
+
+    1
+}
+
 declare_functions!(
     LUA_FUNCTIONS,
     lua_function,
@@ -68,7 +76,8 @@ declare_functions!(
     read_userdata,
     b64_encode,
     check_types,
-    error
+    error,
+    get_pos
 );
 
 fn lua_init(l: lua::State) {
