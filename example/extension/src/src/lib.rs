@@ -2,6 +2,10 @@ use base64::{engine::general_purpose::STANDARD as b64, Engine};
 use dmextension::{AppParams, Event, Extension, Params};
 use dmsdk::*;
 
+extern "C" {
+    fn CGetPos(L: *const ffi::lua_State) -> i32;
+}
+
 // LUA FUNCTIONS //
 fn lua_function(l: lua::State) -> i32 {
     dmlog::info!("Hello from Rust!");
@@ -63,9 +67,14 @@ fn error(l: lua::State) -> i32 {
 fn get_pos(l: lua::State) -> i32 {
     let object = dmscript::check_go_instance(l);
     let pos = object.position();
+    dmlog::info!("{pos:?}");
     dmscript::push_vector3(l, pos.into());
 
     1
+}
+
+fn c_get_pos(l: lua::State) -> i32 {
+    unsafe { CGetPos(l.ptr()) }
 }
 
 declare_functions!(
@@ -77,7 +86,8 @@ declare_functions!(
     b64_encode,
     check_types,
     error,
-    get_pos
+    get_pos,
+    c_get_pos
 );
 
 fn lua_init(l: lua::State) {

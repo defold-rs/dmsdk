@@ -11,6 +11,16 @@
 //	return pos;
 //}
 
+extern "C" int CGetPos(lua_State* L) {
+	DM_LUA_STACK_CHECK(L, 1);
+
+	dmGameObject::HInstance instance = dmScript::CheckGOInstance(L);
+	dmVMath::Point3 position = dmGameObject::GetPosition(instance);
+	dmScript::PushVector3(L, dmVMath::Vector3(position));
+
+	return 1;
+}
+
 static dmGameObject::Result Create(const dmGameObject::ComponentTypeCreateCtx* ctx, dmGameObject::ComponentType* type) {
 	return dmGameObject::RESULT_OK;
 }

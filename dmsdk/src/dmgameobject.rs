@@ -2,6 +2,7 @@
 
 use std::{ffi::CString, fmt::Debug};
 
+use dmsdk_ffi::dmVMath;
 use libc::c_void;
 
 use crate::{dmvmath, ffi::dmGameObject};
@@ -63,8 +64,8 @@ impl Instance {
     }
 
     /// Returns the position of this game object.
-    pub fn position(&self) -> dmvmath::Point3 {
-        unsafe { dmGameObject::GetPosition(self.ptr).into() }
+    pub fn position(&self) -> dmVMath::Point3 {
+        unsafe { dmGameObject::GetPosition(self.ptr) }
     }
 
     /// Returns the rotation of this game object.
