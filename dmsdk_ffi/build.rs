@@ -76,7 +76,6 @@ fn main() {
         .allowlist_type("dm.*")
         .allowlist_type("lua.*")
         .opaque_type(".*Desc")
-        .opaque_type(".*Transform.*")
         //.allowlist_recursively(false)
         .time_phases(true)
         // Tell cargo to invalidate the built crate whenever any of the
