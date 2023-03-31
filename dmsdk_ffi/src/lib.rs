@@ -7,3 +7,15 @@ mod internal {
 }
 
 pub use internal::root::*;
+
+impl Default for dmVMath::Vector3 {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+
+impl Default for dmVMath::Point3 {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
