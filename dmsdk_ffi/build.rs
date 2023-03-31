@@ -59,6 +59,7 @@ fn main() {
     // the resulting bindings.
     let builder = bindgen::Builder::default() //defold_allowlist(bindgen::Builder::default())
         .enable_cxx_namespaces()
+        .explicit_padding(true)
         // Set the include path and force C++ mode
         .clang_args(vec!["-I.", "-x", "c++"].iter())
         // The input header we would like to generate
