@@ -202,13 +202,13 @@ macro_rules! __event_callback {
 ///
 /// // See the Extension trait documentation for all available functions
 /// impl Extension for MyExtension {
-///     fn ext_init(params: Params) -> dmextension::Result {
+///     fn ext_init(&mut self, params: Params) -> dmextension::Result {
 ///         dmlog::info!("Registered extension MyExtension");
 ///
 ///         dmextension::Result::Ok
 ///     }
 ///
-///     fn on_event(params: Params, event: Event) {
+///     fn on_event(&mut self, params: Params, event: Event) {
 ///         dmlong::info!("Received event: {:?}", event);
 ///     }
 /// }
