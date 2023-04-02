@@ -69,7 +69,6 @@ impl From<Point3> for Vectormath::Aos::Point3 {
             mX: p.x,
             mY: p.y,
             mZ: p.z,
-            ..Default::default()
         }
     }
 }
@@ -103,7 +102,6 @@ impl From<Vector3> for Vectormath::Aos::Vector3 {
             mX: v.x,
             mY: v.y,
             mZ: v.z,
-            ..Default::default()
         }
     }
 }
