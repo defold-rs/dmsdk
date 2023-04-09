@@ -1,9 +1,12 @@
 use base64::{engine::general_purpose::STANDARD as b64, Engine};
 use dmextension::{AppParams, Event, Extension, Params};
-use dmsdk::*;
+use dmsdk::{
+    ffi::{dmGameObject::HInstance, dmVMath},
+    *,
+};
 
 extern "C" {
-    fn CGetPos(L: *const ffi::lua_State) -> i32;
+    fn GetPositionWrapper(instance: HInstance, out: *mut dmVMath::Point3);
 }
 
 // LUA FUNCTIONS //
@@ -64,17 +67,24 @@ fn error(l: lua::State) -> i32 {
     lua::error!(l, "An expected error occured!");
 }
 
-fn get_pos(l: lua::State) -> i32 {
-    let object = dmscript::check_go_instance(l);
-    let pos = object.position();
-    dmlog::info!("{pos:?}");
-    dmscript::push_vector3(l, pos.into());
+fn print_id(l: lua::State) -> i32 {
+    let instance = dmscript::check_go_instance(l);
+    let id = instance.id();
+    dmlog::info!("Currrent ID: {id:?}");
 
-    1
+    0
 }
 
-fn c_get_pos(l: lua::State) -> i32 {
-    unsafe { CGetPos(l.ptr()) }
+fn set_position(l: lua::State) -> i32 {
+    let instance = dmscript::check_go_instance(l);
+    let pos = dmvmath::Point3 {
+        x: lua::check_float(l, 1) as f32,
+        y: lua::check_float(l, 2) as f32,
+        z: lua::check_float(l, 3) as f32,
+    };
+    instance.set_position(pos);
+
+    0
 }
 
 declare_functions!(
@@ -86,8 +96,8 @@ declare_functions!(
     b64_encode,
     check_types,
     error,
-    get_pos,
-    c_get_pos
+    print_id,
+    set_position
 );
 
 fn lua_init(l: lua::State) {
