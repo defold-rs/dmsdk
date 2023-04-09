@@ -126,9 +126,9 @@ pub fn check_bytes(l: State, i: i32) -> Vec<u8> {
     let ptr = unsafe { dmsdk_ffi::luaL_checklstring(l.ptr, i, &mut length) };
 
     // There's probably a better way to read X bytes from a ptr
-    let mut vec = Vec::with_capacity(length as usize);
+    let mut vec = Vec::with_capacity(length);
     for i in 0..length {
-        let byte = unsafe { *ptr.add(i as usize) as u8 };
+        let byte = unsafe { *ptr.add(i) as u8 };
         vec.push(byte);
     }
     vec

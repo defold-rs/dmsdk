@@ -2,7 +2,6 @@
 
 use std::{ffi::CString, fmt::Debug};
 
-use dmsdk_ffi::dmVMath;
 use libc::c_void;
 
 use crate::{dmvmath, ffi::dmGameObject};
@@ -61,21 +60,6 @@ impl Instance {
         } else {
             Some(hash)
         }
-    }
-
-    /// Returns the position of this game object.
-    pub fn position(&self) -> dmVMath::Point3 {
-        unsafe { dmGameObject::GetPosition(self.ptr) }
-    }
-
-    /// Returns the rotation of this game object.
-    pub fn rotation(&self) -> dmvmath::Quat {
-        unsafe { dmGameObject::GetRotation(self.ptr).into() }
-    }
-
-    /// Returns the scale of this game object.
-    pub fn scale(&self) -> dmvmath::Vector3 {
-        unsafe { dmGameObject::GetScale(self.ptr).into() }
     }
 
     /// Sets the position of this game object.
