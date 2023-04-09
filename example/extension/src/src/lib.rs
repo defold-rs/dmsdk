@@ -1,13 +1,6 @@
 use base64::{engine::general_purpose::STANDARD as b64, Engine};
 use dmextension::{AppParams, Event, Extension, Params};
-use dmsdk::{
-    ffi::{dmGameObject::HInstance, dmVMath},
-    *,
-};
-
-extern "C" {
-    fn GetPositionWrapper(instance: HInstance, out: *mut dmVMath::Point3);
-}
+use dmsdk::*;
 
 // LUA FUNCTIONS //
 fn lua_function(l: lua::State) -> i32 {
