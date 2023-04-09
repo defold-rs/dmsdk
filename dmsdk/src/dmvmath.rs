@@ -1,6 +1,6 @@
 //! Vector math helpers.
 
-use crate::ffi::Vectormath;
+use dmsdk_ffi::dmVMath;
 
 /// Point in 3D space.
 #[allow(missing_docs)]
@@ -52,8 +52,8 @@ impl From<Point3> for Vector3 {
 }
 
 // Defold <-> Rust //
-impl From<Vectormath::Aos::Point3> for Point3 {
-    fn from(p: Vectormath::Aos::Point3) -> Self {
+impl From<dmVMath::Point3> for Point3 {
+    fn from(p: dmVMath::Point3) -> Self {
         Self {
             x: p.mX,
             y: p.mY,
@@ -63,7 +63,7 @@ impl From<Vectormath::Aos::Point3> for Point3 {
 }
 
 #[cfg(target_env = "gnu")]
-impl From<Point3> for Vectormath::Aos::Point3 {
+impl From<Point3> for dmVMath::Point3 {
     fn from(p: Point3) -> Self {
         Self {
             mX: p.x,
@@ -74,7 +74,7 @@ impl From<Point3> for Vectormath::Aos::Point3 {
 }
 
 #[cfg(not(target_env = "gnu"))]
-impl From<Point3> for Vectormath::Aos::Point3 {
+impl From<Point3> for dmVMath::Point3 {
     fn from(p: Point3) -> Self {
         Self {
             mX: p.x,
@@ -85,8 +85,8 @@ impl From<Point3> for Vectormath::Aos::Point3 {
     }
 }
 
-impl From<Vectormath::Aos::Vector3> for Vector3 {
-    fn from(v: Vectormath::Aos::Vector3) -> Self {
+impl From<dmVMath::Vector3> for Vector3 {
+    fn from(v: dmVMath::Vector3) -> Self {
         Self {
             x: v.mX,
             y: v.mY,
@@ -96,7 +96,7 @@ impl From<Vectormath::Aos::Vector3> for Vector3 {
 }
 
 #[cfg(target_env = "gnu")]
-impl From<Vector3> for Vectormath::Aos::Vector3 {
+impl From<Vector3> for dmVMath::Vector3 {
     fn from(v: Vector3) -> Self {
         Self {
             mX: v.x,
@@ -107,7 +107,7 @@ impl From<Vector3> for Vectormath::Aos::Vector3 {
 }
 
 #[cfg(not(target_env = "gnu"))]
-impl From<Vector3> for Vectormath::Aos::Vector3 {
+impl From<Vector3> for dmVMath::Vector3 {
     fn from(v: Vector3) -> Self {
         Self {
             mX: v.x,
@@ -118,13 +118,24 @@ impl From<Vector3> for Vectormath::Aos::Vector3 {
     }
 }
 
-impl From<Vectormath::Aos::Quat> for Quat {
-    fn from(q: Vectormath::Aos::Quat) -> Self {
+impl From<dmVMath::Quat> for Quat {
+    fn from(q: dmVMath::Quat) -> Self {
         Self {
             x: q.mX,
             y: q.mY,
             z: q.mZ,
             w: q.mW,
+        }
+    }
+}
+
+impl From<Quat> for dmVMath::Quat {
+    fn from(q: Quat) -> Self {
+        Self {
+            mX: q.x,
+            mY: q.y,
+            mZ: q.z,
+            mW: q.w,
         }
     }
 }
