@@ -4,7 +4,10 @@ use std::{ffi::CString, fmt::Debug};
 
 use libc::c_void;
 
-use crate::{dmvmath, ffi::dmGameObject};
+use crate::{
+    dmvmath::{self, Point3, Quat, Vector3},
+    ffi::dmGameObject,
+};
 
 /// Game object register.
 pub type Register = dmGameObject::HRegister;
@@ -42,6 +45,17 @@ impl From<i32> for Error {
     }
 }
 
+/// Collection instance.
+pub struct Collection {
+    ptr: dmGameObject::HCollection,
+}
+
+impl From<dmGameObject::HCollection> for Collection {
+    fn from(ptr: dmGameObject::HCollection) -> Self {
+        Self { ptr }
+    }
+}
+
 /// Game object instance.
 pub struct Instance {
     ptr: dmGameObject::HInstance,
@@ -62,9 +76,24 @@ impl Instance {
         }
     }
 
+    /// Returns the collection that this game object belongs to.
+    pub fn collection(&self) -> Collection {
+        unsafe { dmGameObject::GetCollection(self.ptr).into() }
+    }
+
     /// Sets the position of this game object.
-    pub fn set_position(&self, position: dmvmath::Point3) {
+    pub fn set_position(&self, position: Point3) {
         unsafe { dmGameObject::SetPosition(self.ptr, position.into()) }
+    }
+
+    /// Sets the rotation of this game object.
+    pub fn set_rotation(&self, rotation: Quat) {
+        unsafe { dmGameObject::SetRotation(self.ptr, rotation.into()) }
+    }
+
+    /// Sets the scale of this game object.
+    pub fn set_scale(&self, scale: Vector3) {
+        unsafe { dmGameObject::SetScale1(self.ptr, scale.into()) }
     }
 }
 
