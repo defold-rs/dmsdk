@@ -1,6 +1,6 @@
 //! Web server module.
 
-use crate::ffi::dmWebServer;
+use dmsdk_ffi::dmWebServer;
 
 /// Web server pointer.
 pub type Server = dmWebServer::HServer;

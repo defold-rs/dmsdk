@@ -1,6 +1,8 @@
 //! Functions for interacting with the engine.
 
-use crate::{dmconfigfile, dmextension, dmgameobject, dmhid, dmwebserver, ffi::dmEngine};
+use dmsdk_ffi::dmEngine;
+
+use crate::{dmconfigfile, dmextension, dmgameobject, dmhid, dmwebserver};
 
 /// Get the project config file from an instance of [`AppParams`](dmextension::AppParams).
 pub fn get_config_file(app_params: dmextension::AppParams) -> dmconfigfile::ConfigFile {

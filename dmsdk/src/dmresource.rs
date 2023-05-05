@@ -1,7 +1,7 @@
 //! Custom resource registering module.
 #![allow(missing_docs)]
 
-use crate::ffi::dmResource;
+use dmsdk_ffi::dmResource;
 use std::ffi::CString;
 
 pub use ctor::ctor;

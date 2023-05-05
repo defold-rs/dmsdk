@@ -20,9 +20,6 @@ pub mod lua;
 
 pub use dmhash::*;
 
-#[doc(inline)]
-pub use dmsdk_ffi as ffi;
-
 #[doc(hidden)]
 pub use paste::paste;
 

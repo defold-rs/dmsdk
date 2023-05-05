@@ -1,6 +1,8 @@
 //! Defold-specific Lua helpers.
 
-use crate::{dmgameobject, dmvmath, ffi::dmScript, lua};
+use dmsdk_ffi::dmScript;
+
+use crate::{dmgameobject, dmvmath, lua};
 
 /// Returns the game object instance the calling script belongs to.
 pub fn check_go_instance(l: lua::State) -> dmgameobject::Instance {

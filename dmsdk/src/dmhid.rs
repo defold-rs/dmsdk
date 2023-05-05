@@ -1,6 +1,6 @@
 //! Structs for interacting with input devices.
 
-use crate::ffi::dmHID;
+use dmsdk_ffi::dmHID;
 
 /// HID context.
 #[derive(Clone, Copy)]
