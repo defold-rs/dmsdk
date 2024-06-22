@@ -1,6 +1,7 @@
 //! Configuration file access functions. The configuration file is the compiled version of game.project.
 
 use dmsdk_ffi::dmConfigFile;
+use libc::c_void;
 use std::ffi::{c_char, CStr, CString};
 
 #[doc(hidden)]
@@ -288,8 +289,8 @@ pub fn register(
 ) {
     let name = CString::new(name).unwrap();
     unsafe {
-        dmConfigFile::Register(
-            desc.as_mut_ptr() as *mut dmConfigFile::PluginDesc,
+        dmsdk_ffi::ConfigFileRegisterExtension(
+            desc.as_mut_ptr() as *mut c_void,
             DESC_BUFFER_SIZE,
             name.as_ptr(),
             Some(create),

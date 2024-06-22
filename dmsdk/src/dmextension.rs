@@ -2,6 +2,7 @@
 
 use crate::*;
 use dmsdk_ffi::dmExtension;
+use libc::c_void;
 use std::ffi::CString;
 
 #[doc(hidden)]
@@ -271,8 +272,8 @@ pub fn __register(
     let name = CString::new(name).unwrap();
 
     unsafe {
-        dmExtension::Register(
-            desc.as_mut_ptr() as *mut dmExtension::Desc,
+        dmsdk_ffi::ExtensionRegister(
+            desc.as_mut_ptr() as *mut c_void,
             11,
             name.as_ptr(),
             Some(app_init),

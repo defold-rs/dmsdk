@@ -11,7 +11,7 @@ pub mod dmgameobject;
 mod dmhash;
 pub mod dmhid;
 pub mod dmlog;
-pub mod dmresource;
+//pub mod dmresource; TODO update this
 pub mod dmscript;
 pub mod dmtime;
 pub mod dmvmath;

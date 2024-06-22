@@ -57,7 +57,7 @@ pub struct Instance {
 }
 
 impl Instance {
-    pub unsafe fn new(ptr: dmGameObject::HInstance) -> Self {
+    pub(crate) unsafe fn new(ptr: dmGameObject::HInstance) -> Self {
         Self { ptr }
     }
 
