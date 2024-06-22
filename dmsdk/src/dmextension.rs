@@ -21,7 +21,7 @@ type RawEventCallback = unsafe extern "C" fn(RawParams, RawEvent);
 pub type Desc = [u8; DESC_BUFFER_SIZE];
 
 #[doc(hidden)]
-pub const DESC_BUFFER_SIZE: usize = 128;
+pub const DESC_BUFFER_SIZE: usize = dmsdk_ffi::ExtensionDescBufferSize;
 
 /// Result of a callback function.
 #[allow(missing_docs)]
@@ -239,7 +239,6 @@ macro_rules! declare_extension {
 				dmsdk::__event_callback!($name);
 
 				#[no_mangle]
-				#[dmsdk::ctor]
 				unsafe fn $name() {
 					dmsdk::dmextension::__register(
 						stringify!($name),
