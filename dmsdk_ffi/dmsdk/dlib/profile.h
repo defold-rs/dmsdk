@@ -1,4 +1,4 @@
-// Copyright 2020-2022 The Defold Foundation
+// Copyright 2020-2024 The Defold Foundation
 // Copyright 2014-2020 King
 // Copyright 2009-2014 Ragnar Svensson, Christian Murray
 // Licensed under the Defold License version 1.0 (the "License"); you may not use
@@ -580,6 +580,27 @@
 
 namespace dmProfile
 {
+    /*# Profile snapshot handle
+     * @typedef
+     * @name HProfile
+     */
+    typedef void* HProfile;
+
+    /*#
+     * Begin profiling, eg start of frame
+     * @note NULL is returned if profiling is disabled
+     * @name BeginFrame
+     * @return context [type:dmProfile::HProfile] The current profiling context. Must be released by #EndFrame
+     */
+    HProfile BeginFrame();
+
+    /*#
+     * Release profile returned by #Begin
+     * @name EndFrame
+     * @param profile [type:dmProfile::HProfile] Profile to release
+     */
+    void EndFrame(HProfile profile);
+
     /// Internal, do not use.
     struct ProfileScope
     {

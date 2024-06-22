@@ -2,8 +2,10 @@
 
 #![allow(warnings)]
 
-mod internal {
-    include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
-}
+// mod internal {
+//     include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+// }
 
-pub use internal::root::*;
+// pub use internal::root::*;
+mod bindings;
+pub use bindings::root::*;

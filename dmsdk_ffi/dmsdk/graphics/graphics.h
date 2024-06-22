@@ -1,12 +1,12 @@
-// Copyright 2020-2022 The Defold Foundation
+// Copyright 2020-2024 The Defold Foundation
 // Copyright 2014-2020 King
 // Copyright 2009-2014 Ragnar Svensson, Christian Murray
 // Licensed under the Defold License version 1.0 (the "License"); you may not use
 // this file except in compliance with the License.
-// 
+//
 // You may obtain a copy of the License, together with FAQs at
 // https://www.defold.com/license
-// 
+//
 // Unless required by applicable law or agreed to in writing, software distributed
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
@@ -34,16 +34,21 @@ namespace dmGraphics
      * @typedef
      * @name HContext
      */
-    typedef struct Context* HContext;
+    typedef void* HContext;
 
     /*#
      * Texture handle
      * @typedef
      * @name HTexture
      */
-    typedef struct Texture* HTexture;
+    typedef uint64_t HTexture;
 
-    typedef struct RenderTarget* HRenderTarget; // Where is this currently used?
+    /*#
+     * Rendertarget handle
+     * @typedef
+     * @name HRenderTarget
+     */
+    typedef uint64_t HRenderTarget; // Where is this currently used?
 
     /*#
      * Vertex program handle
@@ -81,11 +86,53 @@ namespace dmGraphics
     typedef uintptr_t HIndexBuffer;
 
     /*#
+     * Storage buffer handle
+     * @typedef
+     * @name HStorageBuffer
+     */
+    typedef uintptr_t HStorageBuffer;
+
+    /*#
+     * Uniform location handle
+     * @typedef
+     * @name HUniformLocation
+     */
+    typedef int64_t HUniformLocation;
+
+    /*#
      * Vertex declaration handle
      * @typedef
      * @name HVertexDeclaration
      */
     typedef struct VertexDeclaration* HVertexDeclaration;
+
+    /*#
+     * Vertex stream declaration handle
+     * @typedef
+     * @name HVertexStreamDeclaration
+     */
+    typedef struct VertexStreamDeclaration* HVertexStreamDeclaration;
+
+    /*#
+     * PipelineState handle
+     * @typedef
+     * @name HPipelineState
+     */
+    typedef struct PipelineState* HPipelineState;
+
+    /*#
+     * Invalid stream offset
+     * @constant
+     * @name INVALID_STREAM_OFFSET
+     */
+    const uint32_t INVALID_STREAM_OFFSET = 0xFFFFFFFF;
+
+    /*#
+     * Max buffer color attachments
+     * @constant
+     * @name MAX_BUFFER_COLOR_ATTACHMENTS
+     */
+    const uint8_t  MAX_BUFFER_COLOR_ATTACHMENTS = 4;
 
     /*#
      * @enum
@@ -115,6 +162,22 @@ namespace dmGraphics
         ATTACHMENT_DEPTH     = 1,
         ATTACHMENT_STENCIL   = 2,
         MAX_ATTACHMENT_COUNT = 3
+    };
+
+    /*#
+     * @enum
+     * @name AttachmentOp
+     * @member ATTACHMENT_OP_DONT_CARE
+     * @member ATTACHMENT_OP_LOAD
+     * @member ATTACHMENT_OP_STORE
+     * @member ATTACHMENT_OP_CLEAR
+     */
+    enum AttachmentOp
+    {
+        ATTACHMENT_OP_DONT_CARE,
+        ATTACHMENT_OP_LOAD,
+        ATTACHMENT_OP_STORE,
+        ATTACHMENT_OP_CLEAR,
     };
 
     /*#
@@ -150,6 +213,7 @@ namespace dmGraphics
      * @member TEXTURE_FORMAT_RG16F
      * @member TEXTURE_FORMAT_R32F
      * @member TEXTURE_FORMAT_RG32F
+     * @member TEXTURE_FORMAT_RGBA32UI
      * @member TEXTURE_FORMAT_COUNT
      */
     enum TextureFormat
@@ -186,13 +250,32 @@ namespace dmGraphics
         TEXTURE_FORMAT_RG16F                = 27,
         TEXTURE_FORMAT_R32F                 = 28,
         TEXTURE_FORMAT_RG32F                = 29,
+        // Internal formats (not exposed via script APIs)
+        TEXTURE_FORMAT_RGBA32UI             = 30,
+        TEXTURE_FORMAT_BGRA8U               = 31,
+        TEXTURE_FORMAT_R32UI                = 32,
 
         TEXTURE_FORMAT_COUNT
     };
 
+    /*#
+     * Get the attachment texture from a render target. Returns zero if no such attachment texture exists.
+     * @name GetRenderTargetAttachment
+     * @param render_target [type: dmGraphics::HRenderTarget] the render target
+     * @param attachment_type [type: dmGraphics::RenderTargetAttachment] the attachment to get
+     * @return attachment [type: dmGraphics::HTexture] the attachment texture
+     */
     HTexture GetRenderTargetAttachment(HRenderTarget render_target, RenderTargetAttachment attachment_type);
-    HandleResult GetTextureHandle(HTexture texture, void** out_handle);
 
+    /*#
+     * Get the native graphics API texture object from an engine texture handle. This depends on the graphics backend and is not
+     * guaranteed to be implemented on the currently running adapter.
+     * @name GetTextureHandle
+     * @param texture [type: dmGraphics::HTexture] the texture handle
+     * @param out_handle [type: void**] a pointer to where the raw object should be stored
+     * @return handle_result [type: dmGraphics::HandleResult] the result of the query
+     */
+    HandleResult GetTextureHandle(HTexture texture, void** out_handle);
 
     /*#
      * @enum
@@ -266,6 +349,7 @@ namespace dmGraphics
         BUFFER_USAGE_STREAM_DRAW  = 0,
         BUFFER_USAGE_DYNAMIC_DRAW = 1,
         BUFFER_USAGE_STATIC_DRAW  = 2,
+        BUFFER_USAGE_TRANSFER     = 4,
     };
 
     /*#
@@ -325,22 +409,33 @@ namespace dmGraphics
      * @member TYPE_FLOAT_MAT4
      * @member TYPE_SAMPLER_2D
      * @member TYPE_SAMPLER_CUBE
+     * @member TYPE_SAMPLER_2D_ARRAY
+     * @member TYPE_FLOAT_VEC2
+     * @member TYPE_FLOAT_VEC3
+     * @member TYPE_FLOAT_MAT2
+     * @member TYPE_FLOAT_MAT3
+     * @member TYPE_IMAGE_2D
      */
     enum Type
     {
-        TYPE_BYTE           = 0,
-        TYPE_UNSIGNED_BYTE  = 1,
-        TYPE_SHORT          = 2,
-        TYPE_UNSIGNED_SHORT = 3,
-        TYPE_INT            = 4,
-        TYPE_UNSIGNED_INT   = 5,
-        TYPE_FLOAT          = 6,
-        TYPE_FLOAT_VEC4     = 7,
-        TYPE_FLOAT_MAT4     = 8,
-        TYPE_SAMPLER_2D     = 9,
-        TYPE_SAMPLER_CUBE   = 10,
+        TYPE_BYTE             = 0,
+        TYPE_UNSIGNED_BYTE    = 1,
+        TYPE_SHORT            = 2,
+        TYPE_UNSIGNED_SHORT   = 3,
+        TYPE_INT              = 4,
+        TYPE_UNSIGNED_INT     = 5,
+        TYPE_FLOAT            = 6,
+        TYPE_FLOAT_VEC4       = 7,
+        TYPE_FLOAT_MAT4       = 8,
+        TYPE_SAMPLER_2D       = 9,
+        TYPE_SAMPLER_CUBE     = 10,
+        TYPE_SAMPLER_2D_ARRAY = 11,
+        TYPE_FLOAT_VEC2       = 12,
+        TYPE_FLOAT_VEC3       = 13,
+        TYPE_FLOAT_MAT2       = 14,
+        TYPE_FLOAT_MAT3       = 15,
+        TYPE_IMAGE_2D         = 16,
     };
-
 
     /*#
      * Blend factor
@@ -382,43 +477,75 @@ namespace dmGraphics
     };
 
     /*#
-     * @struct
-     * @name VertexElement
-     * @member m_Name [type: const char*] name of the element (e.g. "position")
-     * @member m_Stream [type: uint32_t] stream index
-     * @member m_Size [type: uint32_t] number of elements (e.g. 3 for "position")
-     * @member m_Type [type: dmGraphics::Type] data type
-     * @member m_Normalize [type: bool] if set, will normalize the output in the program
+     * Vertex step function. Dictates how the data for a vertex attribute should be read in a vertex shader.
+     * @enum
+     * @name VertexStepFunction
+     * @member VERTEX_STEP_FUNCTION_VERTEX
+     * @member VERTEX_STEP_FUNCTION_INSTANCE
      */
-    struct VertexElement
+    enum VertexStepFunction
     {
-        const char*     m_Name;
-        uint32_t        m_Stream;
-        uint32_t        m_Size;
-        Type            m_Type;
-        bool            m_Normalize;
+        VERTEX_STEP_FUNCTION_VERTEX,
+        VERTEX_STEP_FUNCTION_INSTANCE,
     };
 
     /*#
-     * Create new vertex declaration
-     * @name NewVertexDeclaration
+     * Create new vertex stream declaration. A stream declaration contains a list of vertex streams
+     * that should be used to create a vertex declaration from.
+     * @name NewVertexStreamDeclaration
      * @param context [type: dmGraphics::HContext] the context
-     * @param element [type: dmGraphics::VertexElement*] the array of vertex elements
-     * @param count [type: uint32_t] the number of items in the element array
-     * @return declaration [type: dmGraphics::HVertexDeclaration] the vertex declaration
+     * @return declaration [type: dmGraphics::HVertexStreamDeclaration] the vertex declaration
      */
-    HVertexDeclaration NewVertexDeclaration(HContext context, VertexElement* element, uint32_t count);
+    HVertexStreamDeclaration NewVertexStreamDeclaration(HContext context);
 
     /*#
-     * Create new vertex declaration
+     * Adds a stream to a stream declaration
+     * @name AddVertexStream
+     * @param context [type: dmGraphics::HContext] the context
+     * @param name [type: const char*] the name of the stream
+     * @param size [type: uint32_t] the size of the stream, i.e number of components
+     * @param type [type: dmGraphics::Type] the data type of the stream
+     * @param normalize [type: bool] true if the stream should be normalized in the 0..1 range
+     */
+    void AddVertexStream(HVertexStreamDeclaration stream_declaration, const char* name, uint32_t size, Type type, bool normalize);
+
+    /*#
+     * Adds a stream to a stream declaration
+     * @name AddVertexStream
+     * @param context [type: dmGraphics::HContext] the context
+     * @param name_hash [type: uint64_t] the name hash of the stream
+     * @param size [type: uint32_t] the size of the stream, i.e number of components
+     * @param type [type: dmGraphics::Type] the data type of the stream
+     * @param normalize [type: bool] true if the stream should be normalized in the 0..1 range
+     */
+    void AddVertexStream(HVertexStreamDeclaration stream_declaration, uint64_t name_hash, uint32_t size, Type type, bool normalize);
+
+    /*#
+     * Delete vertex stream declaration
+     * @name DeleteVertexStreamDeclaration
+     * @param stream_declaration [type: dmGraphics::HVertexStreamDeclaration] the vertex stream declaration
+     */
+    void DeleteVertexStreamDeclaration(HVertexStreamDeclaration stream_declaration);
+
+    /*#
+     * Create new vertex declaration from a vertex stream declaration
      * @name NewVertexDeclaration
      * @param context [type: dmGraphics::HContext] the context
-     * @param element [type: dmGraphics::VertexElement*] the array of vertex elements
-     * @param count [type: uint32_t] the number of items in the element array
+     * @param stream_declaration [type: dmGraphics::HVertexStreamDeclaration] the vertex stream declaration
+     * @return declaration [type: dmGraphics::HVertexDeclaration] the vertex declaration
+     */
+    HVertexDeclaration NewVertexDeclaration(HContext context, HVertexStreamDeclaration stream_declaration);
+
+    /*#
+     * Create new vertex declaration from a vertex stream declaration and an explicit stride value,
+     * where the stride is the number of bytes between each consecutive vertex in a vertex buffer
+     * @name NewVertexDeclaration
+     * @param context [type: dmGraphics::HContext] the context
+     * @param stream_declaration [type: dmGraphics::HVertexStreamDeclaration] the vertex stream declaration
      * @param stride [type: uint32_t] the stride between the start of each vertex (in bytes)
      * @return declaration [type: dmGraphics::HVertexDeclaration] the vertex declaration
      */
-    HVertexDeclaration NewVertexDeclaration(HContext context, VertexElement* element, uint32_t count, uint32_t stride);
+    HVertexDeclaration NewVertexDeclaration(HContext context, HVertexStreamDeclaration stream_declaration, uint32_t stride);
 
     /*#
      * Delete vertex declaration
@@ -426,6 +553,15 @@ namespace dmGraphics
      * @param vertex_declaration [type: dmGraphics::HVertexDeclaration] the vertex declaration
      */
     void DeleteVertexDeclaration(HVertexDeclaration vertex_declaration);
+
+    /*#
+     * Get the physical offset into the vertex data for a particular stream
+     * @name GetVertexStreamOffset
+     * @param vertex_declaration [type: dmGraphics::HVertexDeclaration] the vertex declaration
+     * @param name_hash [type: uint64_t] the name hash of the vertex stream (as passed into AddVertexStream())
+     * @return Offset in bytes into the vertex or INVALID_STREAM_OFFSET if not found
+     */
+    uint32_t GetVertexStreamOffset(HVertexDeclaration vertex_declaration, uint64_t name_hash);
 
     /*#
      * Create new vertex buffer with initial data

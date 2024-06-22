@@ -1,12 +1,12 @@
-// Copyright 2020-2022 The Defold Foundation
+// Copyright 2020-2024 The Defold Foundation
 // Copyright 2014-2020 King
 // Copyright 2009-2014 Ragnar Svensson, Christian Murray
 // Licensed under the Defold License version 1.0 (the "License"); you may not use
 // this file except in compliance with the License.
-// 
+//
 // You may obtain a copy of the License, together with FAQs at
 // https://www.defold.com/license
-// 
+//
 // Unless required by applicable law or agreed to in writing, software distributed
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
@@ -20,11 +20,17 @@
 #include <dmsdk/dlib/array.h>
 #include <dmsdk/dlib/align.h>
 #include <dmsdk/dlib/hash.h>
+#include <dmsdk/dlib/hashtable.h>
 #include <dmsdk/dlib/transform.h>
 #include <dmsdk/dlib/vmath.h>
 
 #include <ddf/ddf.h>
 #include <rig/rig_ddf.h>
+
+namespace dmGraphics
+{
+    struct VertexAttributeInfos;
+}
 
 namespace dmRig
 {
@@ -100,7 +106,7 @@ namespace dmRig
     {
         float pos[3];
         float normal[3];
-        float tangent[3];
+        float tangent[4];
         float color[4];
         float uv0[2];
         float uv1[2];
@@ -139,10 +145,11 @@ namespace dmRig
         dmhash_t                      m_ModelId;
         dmhash_t                      m_DefaultAnimation;
 
-        const dmArray<struct RigBone>* m_BindPose;
-        const dmRigDDF::Skeleton*     m_Skeleton;
-        const dmRigDDF::MeshSet*      m_MeshSet;
-        const dmRigDDF::AnimationSet* m_AnimationSet;
+        const dmArray<struct RigBone>*  m_BindPose;
+        const dmHashTable64<uint32_t>*  m_BoneIndices;   // Map of bone name hash -> bone index
+        const dmRigDDF::Skeleton*       m_Skeleton;
+        const dmRigDDF::MeshSet*        m_MeshSet;
+        const dmRigDDF::AnimationSet*   m_AnimationSet;
 
         RigPoseCallback               m_PoseCallback;
         void*                         m_PoseCBUserData1;
@@ -166,6 +173,8 @@ namespace dmRig
     dmhash_t GetAnimation(HRigInstance instance);
 
     // Returns the new position in the array
+    uint8_t* GenerateVertexDataFromAttributes(dmRig::HRigContext context, dmRig::HRigInstance instance, dmRigDDF::Mesh* mesh, const dmVMath::Matrix4& world_matrix, const dmGraphics::VertexAttributeInfos* attribute_infos, uint32_t vertex_stride, uint8_t* vertex_data_out);
+    uint8_t* WriteSingleVertexDataByAttributes(uint8_t* write_ptr, uint32_t idx, const dmGraphics::VertexAttributeInfos* attribute_infos, const float* position, const float* normal, const float* tangent, const float* uv0, const float* uv1, const float* color);
     RigModelVertex* GenerateVertexData(HRigContext context, dmRig::HRigInstance instance, dmRigDDF::Mesh* mesh, const dmVMath::Matrix4& world_matrix, RigModelVertex* vertex_data_out);
     uint32_t GetVertexCount(HRigInstance instance);
 

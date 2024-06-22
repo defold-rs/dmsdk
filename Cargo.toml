@@ -1,5 +1,3 @@
 [workspace]
-members = [
-    "dmsdk",
-    "dmsdk_ffi",
-]
+resolver = "2"
+members = ["dmsdk", "dmsdk_ffi"]
