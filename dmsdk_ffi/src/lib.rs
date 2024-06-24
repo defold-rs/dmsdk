@@ -9,7 +9,7 @@ mod bindings {
 
 #[cfg(target_os = "windows")]
 mod bindings {
-    include!("bindings-x86_64-pc-windows-msv.rs");
+    include!("bindings-x86_64-pc-windows-msvc.rs");
 }
 
 #[cfg(all(target_os = "macos", target_arch = "x86_64"))]
