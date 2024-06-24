@@ -238,6 +238,7 @@ macro_rules! declare_extension {
 				dmsdk::__ext_callback!($name, on_update);
 				dmsdk::__event_callback!($name);
 
+				#[allow(non_snake_case)]
 				#[no_mangle]
 				unsafe fn $name() {
 					dmsdk::dmextension::__register(
